@@ -1061,5 +1061,158 @@ class plxUtils {
 			echo $obj;
 		echo "</pre>";
 	}
+
+	/**
+	 * Envoie un message vers la console javascript pour aider au déboggage.
+	 * @author J.P. Pourrez alias bazooka07
+	 * @version 2017-06-09
+	 * */
+	public static function debugJS($obj, $msg='') {
+
+		if(!empty($msg)) $msg .= ' = ';
+		$msg .= (is_array($obj)) ? print_r($obj, true) : ((is_string($obj)) ? "\"$obj\"" : $obj);
+		echo <<< EOT
+	<script type="text/javascript">
+		console.log(`$msg`);
+	</script>
+
+EOT;
+
+	}
+
+	/**
+	 * fonction privée statique recursive qui imprime les options d'une arborescence de fichiers ou dossiers.
+	 * @author J.P. Pourrez alias bazooka07
+	 * @version 2017-06-09
+	 * @param string $root nom du dossier
+	 * @param integer $level niveau de profondeur dans l'arborescence des dossiers
+	 * @param string $prefixParent prefixe pour l'affichage de la valeur de l'option
+	 * @param string $choice1 sélection initiale de l'utilisateur. Utilisé seulement au niveau 0
+	 * @param boolean $modeDir1 mode pour afficher uniquement les dossiers
+	 * @return void(0) On envoie directemenr le code HTML en sortie
+	 * */
+	private static function _printSelectDir($root, $level, $prefixParent, $choice1='', $modeDir1=true, $textOnly= true) {
+
+		static $firstRootLength = 0;
+		static $modeDir = true;
+		static $extsText = false;
+		static $currentValue = '';
+
+		// initialisation des variables statiques
+		if($level == 0) {
+			$firstRootLength = strlen($root);
+			$modeDir = $modeDir1;
+			if(!$modeDir1 and $textOnly) {
+				$extsText = 'php css js html htm xml txt me';
+				// plxUtils::debugJS($extsText, 'extsText');
+			}
+			$currentValue = $choice1;
+		}
+
+		$children = array_filter(
+			scandir($root),
+			function($item) use($modeDir, $root, $extsText) {
+				return ($item[0] != '.') and
+					(	is_dir($root.$item) or
+						(	!$modeDir and
+							(	empty($extsText) or
+								(	strpos(
+										$extsText,
+										pathinfo(
+											$item,
+											PATHINFO_EXTENSION
+										)
+									) !== false
+								)
+							)
+						)
+					);
+			}
+		);
+		natsort($children);
+
+		if(!empty($children)) {
+			$level++;
+			$cnt = count($children);
+			foreach($children as $child) {
+				$cnt--;
+				$prefix = $prefixParent;
+				// http://www.utf8-chartable.de/unicode-utf8-table.pl?start=9472&unicodeinhtml=dec
+				if($cnt<=0) {
+					$prefix .= '└ '; // espace insécable !
+					$next = ' '; // espace insécable !
+				} else {
+					$prefix .= '├ '; // espace insécable !
+					$next = '│'; // espace insécable !
+				}
+				$dirOk = (is_dir($root.$child));
+				$next .= str_repeat(' ', 3); // espace insécable ! 3 = strlen($prefix.$next)
+				$dataLevel = 'level-'.str_repeat('X', $level);
+				$value = substr($root.$child, $firstRootLength);
+				$selected = ($value == rtrim($currentValue, '/')) ? ' selected' : '';
+				$caption = basename($value);
+				$classList = array();
+				if(strpos($currentValue, dirname($value)) === 0)
+					$classList[] = 'visible';
+				if(!$modeDir and $dirOk) {
+					$classList[] = 'folder';
+				}
+				$classAttr = (!empty($classList)) ? ' class="'.implode(' ', $classList).'"' : '';
+
+				if($dirOk) { // pour un dossier
+					if($modeDir) {
+						echo <<<EOT
+			<option value="$value/"$classAttr data-level="$dataLevel" $selected>$prefix$caption/</option>
+
+EOT;
+					} else {
+						echo <<<EOT
+			<option value=""$classAttr data-level="$dataLevel">$prefix${caption}/</option>
+
+EOT;
+					}
+					plxUtils::_printSelectDir($root.$child.'/', $level, $prefixParent.$next);
+				} else { // pour un fichier
+					echo <<<EOT
+			<option value="$value"$classAttr data-level="$dataLevel"$selected>$prefix$caption</option>
+
+EOT;
+				}
+			}
+		}
+	}
+
+	/**
+	 * function publique pour afficher l'arborescence de dossiers et fichiers dans un tag <select..>.
+	 * $modeDir=true  pour ne choisir que les dossiers ( de médias, par Ex.)
+	 * $modeDir=false pour ne choisir que les fichiers ( du thème, par Ex. )
+	 * @author J.P. Pourrez alias bazooka07
+	 * @version 2017-06-09
+	 * @param string $name nom de l'input dans le formulaire
+	 * @param string $currentValue sélection initiale de l'utilisateur
+	 * @param string $root dossier initial dans l'arborescence
+	 * @param boolean $modeDir évite l'affichage des fichiers (dans la gestion des médias, par Ex., à la différence d'un thème)
+	 * */
+	public static function printSelectDir($name, $currentValue, $root, $modeDir=true) {
+
+		if(substr($root, -1) != '/')
+			$root .= '/';
+		$value = ($modeDir) ? '.' : '';
+		$selected = ($value == $currentValue) ? ' selected' : '';
+		$caption = L_PLXMEDIAS_ROOT;
+		$data_files = (!$modeDir) ? ' data-files' : '';
+		echo <<< EOT
+		<select id="id_$name" name="$name" class="scan-folders fold$data_files">
+			<option value="$value"$selected>$caption/</option>
+
+EOT;
+		plxUtils::_printSelectDir($root, 0, str_repeat(' ', 3), $currentValue, $modeDir);
+		echo <<< EOT
+		</select>
+
+EOT;
+
+	}
+
 }
 ?>
