@@ -112,7 +112,8 @@ var DragDrop = {
 		var numcol = document.querySelectorAll('#'+tb+' thead th[data-id="order"]')[0].cellIndex;
 		var rows = document.querySelectorAll('#'+tb+' tbody tr');
 		for(var i=0;i<rows.length;i++) {
-			rows[i].cells[numcol].getElementsByTagName('input')[0].value = i+1;
+			if(rows[i].cells[numcol].getElementsByTagName('input')[0])
+				rows[i].cells[numcol].getElementsByTagName('input')[0].value = i+1;
 		}
 	}
 }
