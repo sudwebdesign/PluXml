@@ -105,6 +105,7 @@ var DragDrop = {
 	dragstart: function(e) {
 		this.source = e.target;
 		e.dataTransfer.effectAllowed = 'move';
+		e.dataTransfer.setData('clipBoard', e.target);//old Browser
 	},
 	dragend: function(e,tb) {
 		e.preventDefault();
