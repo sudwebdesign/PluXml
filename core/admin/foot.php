@@ -46,19 +46,21 @@
 			}
 		}
 
-		var targets = document.querySelectorAll(query)
-		targets.forEach(function(element) {
-			if(element.options.length > 30) { <!-- Nombre minimum d'entrées de dossiers ou fichiers pour cacher l'arborescence des dossiers
-				element.addEventListener('change', selectChangeEvt);
-			} else {
-				// Pas assez de fichier, on déplie tout (unfold)
-				element.classList.remove('fold');
-			}
-			if(element.classList.contains('data-files')) {
-				element.form.filesSelect = element;
-				element.form.addEventListener('submit', checkFileOnly)
-			}
-		});
+		var targets = document.querySelectorAll(query);
+		if(targets.length) {
+			targets.forEach(function(element) {
+				if(element.options.length > 30) { <!-- Nombre minimum d'entrées de dossiers ou fichiers pour cacher l'arborescence des dossiers
+					element.addEventListener('change', selectChangeEvt);
+				} else {
+					// Pas assez de fichier, on déplie tout (unfold)
+					element.classList.remove('fold');
+				}
+				if(element.classList.contains('data-files')) {
+					element.form.filesSelect = element;
+					element.form.addEventListener('submit', checkFileOnly)
+				}
+			});
+		}
 	})('select.scan-folders');
 </script>
 
