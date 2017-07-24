@@ -9,6 +9,7 @@ $LANG = array(
 'L_SAVE_FILE'												=> 'Save the file',
 'L_SAVE_FILE_SUCCESSFULLY'									=> 'File saved successfully',
 'L_SAVE_FILE_ERROR'											=> 'Error while saving file',
+'L_FILE_REQUIRED'					=> 'Please select a file',
 'L_REPLY'													=> 'Reply',
 'L_REPLY_TO'												=> 'Reply to',
 'L_CANCEL'													=> 'Cancel',

@@ -9,6 +9,7 @@ $LANG = array(
 'L_SAVE_FILE'												=> 'Sla het bestand op',
 'L_SAVE_FILE_SUCCESSFULLY'									=> 'Bestand succesvol opgeslagen',
 'L_SAVE_FILE_ERROR'											=> 'Fout bij het ​​opslaan van het bestand voor',
+'L_FILE_REQUIRED'					=> 'Selecteer een bestand',
 'L_REPLY'													=> 'Antwoord',
 'L_REPLY_TO'												=> 'Antwoord',
 'L_CANCEL'													=> 'Annuleren',

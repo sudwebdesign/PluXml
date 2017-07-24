@@ -9,6 +9,7 @@ $LANG = array(
 'L_SAVE_FILE'						=> 'Salvagardar lo fichièr',
 'L_SAVE_FILE_SUCCESSFULLY'			=> 'Fichièr enregistrat amb succès',
 'L_SAVE_FILE_ERROR'					=> 'Error pendent l\'enregistrament del fichièr',
+'L_FILE_REQUIRED'					=> 'Volgatz seleccionar un fichièr',
 'L_REPLY'							=> 'Respondre',
 'L_REPLY_TO'						=> 'Respondre a',
 'L_CANCEL'							=> 'Anullar',
