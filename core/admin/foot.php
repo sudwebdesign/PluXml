@@ -47,7 +47,7 @@
 		}
 
 		var targets = document.querySelectorAll(query);
-		if(targets.length) {
+		if(typeof targets === 'array' && targets.length > 0) {//https://duckduckgo.com/?t=lm&q=js+is_array&ia=qa ::: console.log(typeof targets,Object.prototype.toString.call( targets ) === '[object Array]');
 			targets.forEach(function(element) {
 				if(element.options.length > 30) { <!-- Nombre minimum d'entrées de dossiers ou fichiers pour cacher l'arborescence des dossiers
 					element.addEventListener('change', selectChangeEvt);
