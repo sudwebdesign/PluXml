@@ -29,7 +29,7 @@
 
 						<?php $plxShow->artThumbnail(); ?>
 						<?php $plxShow->artContent(); ?>
-
+<?php eval($plxShow->callHook('plxShowHrefDownload')) ?>
 						<footer>
 							<small>
 								<span class="classified-in">

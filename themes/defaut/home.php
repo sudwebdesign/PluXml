@@ -29,10 +29,8 @@
 							</small>
 						</header>
 
-						
 						<?php $plxShow->artThumbnail(); ?>
 						<?php $plxShow->artChapo(); ?>
-						
 
 						<footer>
 							<small>

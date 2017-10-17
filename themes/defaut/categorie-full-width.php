@@ -15,6 +15,8 @@
 
 					<p><?php $plxShow->catDescription('#cat_description'); ?></p>
 
+<?php eval($plxShow->callHook('catz')); ?>
+
 					<?php while($plxShow->plxMotor->plxRecord_arts->loop()): ?>
 
 					<article class="article" id="post-<?php echo $plxShow->artId(); ?>">

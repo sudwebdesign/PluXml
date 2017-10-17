@@ -1,7 +1,9 @@
 <?php if(!defined('PLX_ROOT')) exit; ?>
 
 	<aside class="aside col sml-12 med-4">
-
+<?php eval($plxShow->callHook('MyMultiLingue')) ?>
+<?php eval($plxShow->callHook('plxMyShopShowMiniPanier')); ?>
+<?php eval($plxShow->callHook('loginLogout')); ?>
 		<h3>
 			<?php $plxShow->lang('CATEGORIES'); ?>
 		</h3>
@@ -25,7 +27,6 @@
 		<ul class="tag-list">
 			<?php $plxShow->tagList('<li class="tag #tag_size"><a class="#tag_status" href="#tag_url" title="#tag_name">#tag_name</a></li>'); ?>
 		</ul>
-
 		<h3>
 			<?php $plxShow->lang('LATEST_COMMENTS'); ?>
 		</h3>
@@ -41,5 +42,7 @@
 		<ul class="arch-list unstyled-list">
 			<?php $plxShow->archList('<li id="#archives_id"><a class="#archives_status" href="#archives_url" title="#archives_name">#archives_name</a> (#archives_nbart)</li>'); ?>
 		</ul>
+
+<?php eval($plxShow->callHook('plxShowDonsPayPal')) ?>
 
 	</aside>

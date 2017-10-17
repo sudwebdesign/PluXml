@@ -17,7 +17,7 @@
 nav {
 	position: sticky;
 	top: 0;
-	z-index: 2;
+	z-index: 3; /* responsive slide is in 2 */
 }
 .nav {
 	background-color: #fbfbfb;
@@ -71,7 +71,8 @@ body {
 }
 
 .header {
-	background-color: #1a6699;
+	background: url(../img/banner.jpg) top center repeat-x;
+/*	background: url(../img/banner.svg) top center no-repeat; */
 	color: #fff;
 	padding-bottom: 6rem;
 	padding-top: 6rem;

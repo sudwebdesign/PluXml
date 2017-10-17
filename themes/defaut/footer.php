@@ -1,5 +1,5 @@
 <?php if (!defined('PLX_ROOT')) exit; ?>
-
+<?php eval($plxShow->callHook('shariff')) ?>
 	<footer class="footer">
 		<div class="container">
 			<p>
