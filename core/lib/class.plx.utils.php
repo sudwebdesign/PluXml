@@ -432,9 +432,10 @@ class plxUtils {
 	 **/
 	public static function write($xml, $filename) {
 
+		$xml = str_replace("\r",'',$xml); # on enleve les \r
 		if(file_exists($filename)) {
 			$f = fopen($filename.'.tmp', 'w'); # On ouvre le fichier temporaire
-			fwrite($f, trim($xml)); # On écrit
+			fwrite($f, trim($xml)); # On écrit ::: why theme are \r\n after this
 			fclose($f); # On ferme
 			unlink($filename);
 			rename($filename.'.tmp', $filename); # On renomme le fichier temporaire avec le nom de l'ancien
