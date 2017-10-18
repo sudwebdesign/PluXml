@@ -81,7 +81,7 @@ body {
 	background-attachment: fixed;
 	box-sizing: border-box;
 	box-shadow: 0 -1px 10px rgba(0, 0, 0, .7) inset;
-	transform: translateZ(9px) translateY(1px) scale(0.92);
+	transform: translateZ(-1) scale(2);
 	transform-style: inherit;
 }
 .header a {
@@ -324,7 +324,7 @@ body {
 		height: 27rem !important;
 	}
 	.header, .rslidesfill{
-		transform: translateZ(-12px) translateY(1px) scale(.99);
+		transform: translateZ(-1) scale(1.23);
 	}
 }
 
