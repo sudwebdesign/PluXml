@@ -17,7 +17,7 @@
 nav {
 	position: sticky;
 	top: 0;
-	z-index: 3; /* responsive slide is in 2 */
+	z-index: 4; /* responsive slide is in 3 */
 }
 .nav {
 	background-color: #fbfbfb;
@@ -69,14 +69,20 @@ body {
 		padding-right: 15rem;
 	}
 }
-
 .header {
 	background: url(../img/banner.jpg) top center repeat-x;
 /*	background: url(../img/banner.svg) top center no-repeat; */
 	color: #fff;
-	padding-bottom: 6rem;
-	padding-top: 6rem;
+	padding-bottom: 7rem;
+	padding-top: 7rem;
 	text-align: center;
+}
+.header, .rslidesfill{
+	background-attachment: fixed;
+	box-sizing: border-box;
+	box-shadow: 0 -1px 10px rgba(0, 0, 0, .7) inset;
+	transform: translateZ(9px) translateY(1px) scale(0.92);
+	transform-style: inherit;
 }
 .header a {
 	color: #fff;
@@ -304,7 +310,7 @@ body {
 	color: #666;
 }
 
-/* ----------  ---------- */
+/* ---------- Header ---------- */
 
 @media (max-width: 768px) {
 	.header,
@@ -313,6 +319,12 @@ body {
 	}
 	.aside {
 		padding-left: 1.5rem;
+	}
+	.rslides_container, .rslides_container .rslidesfill {
+		height: 27rem !important;
+	}
+	.header, .rslidesfill{
+		transform: translateZ(-12px) translateY(1px) scale(.99);
 	}
 }
 
