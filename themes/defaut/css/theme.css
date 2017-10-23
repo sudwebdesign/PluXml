@@ -25,6 +25,7 @@ nav {
 	text-align: left;
 	border-bottom: 1px solid #fafafa;
 	padding-top: 0.5rem;
+	box-shadow: 0 -1px 10px rgba(0, 0, 0, .7);
 }
 .nav ul {
 	line-height: 3rem;
@@ -70,7 +71,7 @@ body {
 	}
 }
 .header {
-	background: url(../img/banner.jpg) top center repeat-x;
+	background: #630901 url(../img/banner.jpg) top center repeat-x;
 /*	background: url(../img/banner.svg) top center no-repeat; */
 	color: #fff;
 	padding-bottom: 7rem;
@@ -81,7 +82,7 @@ body {
 	background-attachment: fixed;
 	box-sizing: border-box;
 	box-shadow: 0 -1px 10px rgba(0, 0, 0, .7) inset;
-	transform: translateZ(-1) scale(2);
+	transform: translateZ(-1) scale(1.23);
 	transform-style: inherit;
 }
 .header a {

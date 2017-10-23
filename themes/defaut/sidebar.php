@@ -1,6 +1,7 @@
 <?php if(!defined('PLX_ROOT')) exit; ?>
 
 	<aside class="aside col sml-12 med-4">
+<?php #if($plxMotor->mode != 'home') eval($plxShow->callHook("ResponsiveSlidesJs"));#or in home | sidebar ?>
 <?php eval($plxShow->callHook('MyMultiLingue')) ?>
 <?php eval($plxShow->callHook('plxMyShopShowMiniPanier')); ?>
 <?php eval($plxShow->callHook('loginLogout')); ?>

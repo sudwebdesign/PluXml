@@ -39,4 +39,4 @@
 			<h2 class="h5 no-margin"><?php $plxShow->subTitle(); ?></h2>
 		</div>
 	</header>
-<?php eval($plxShow->callHook("ResponsiveSlidesJs")) ?>
+<?php if($plxMotor->mode == 'home') eval($plxShow->callHook("ResponsiveSlidesJs"));#or in home | sidebar ? ?>
