@@ -14,7 +14,7 @@ plxToken::validateFormToken($_POST);
 $plxAdmin->checkProfil(PROFIL_ADMIN);
 
 # Initialisation
-$tpl = isset($_POST['tpl'])?$_POST['tpl']:'home.php';
+$tpl = isset($_POST['tpl'])?$_POST['tpl']:'/home.php';
 if(!empty($_POST['load'])) $tpl = $_POST['template'];
 
 $style = $plxAdmin->aConf['style'];
