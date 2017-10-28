@@ -148,7 +148,7 @@ a.lnkdelete:hover {
 		padding: 1rem;
 	}
 	.aside .responsive-menu {
-		max-height: 200px;
+		max-height: 100%;
 		overflow-y: auto;
 		position: fixed;
 		top: 0;
