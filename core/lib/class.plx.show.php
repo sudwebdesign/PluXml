@@ -1,5 +1,7 @@
 <?php
 
+define('CAT_LIST_OPTION', '<option id="#cat_id" value="#cat_url" #cat_selected>#cat_name</li>');
+
 /**
  * Classe plxShow responsable de l'affichage sur stdout
  *
@@ -344,7 +346,6 @@ class plxShow {
 	public function catList($extra='', $format='<li id="#cat_id" class="#cat_status"><a href="#cat_url" title="#cat_name">#cat_name</a></li>', $include='', $exclude='') {
 		# Hook Plugins
 		if(eval($this->plxMotor->plxPlugins->callHook('plxShowLastCatList'))) return;
-
 		# Si on a la variable extra, on affiche un lien vers la page d'accueil (avec $extra comme nom)
 		if($extra != '') {
 			$name = str_replace('#cat_id','cat-home',$format);

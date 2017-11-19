@@ -9,6 +9,7 @@ $LANG = array(
 'L_SAVE_FILE'						=> 'Sauvegarder le fichier',
 'L_SAVE_FILE_SUCCESSFULLY'			=> 'Fichier enregistré avec succès',
 'L_SAVE_FILE_ERROR'					=> 'Erreur pendant l\'enregistrement du fichier',
+'L_FILE_REQUIRED'					=> 'Veuillez sélectionner un fichier',
 
 'L_REPLY'							=> 'Répondre',
 'L_REPLY_TO'						=> 'Répondre à',
@@ -111,7 +112,7 @@ $LANG = array(
 'L_AWAITING'						=> 'En attente de validation',
 'L_ARTICLE_DATE' 					=> 'Date de publication',
 'L_NOW'								=> 'maintenant',
-'L_ARTICLE_CATEGORIES' 				=> 'Emplacements',
+'L_ARTICLE_CATEGORIES' 				=> 'Catégories',
 'L_CATEGORY_HOME_PAGE' 			 	=> 'Page d\'accueil',
 'L_NEW_CATEGORY' 			 		=> 'Nouvelle catégorie',
 'L_ARTICLE_TAGS_FIELD' 				=> 'Mots clés',
