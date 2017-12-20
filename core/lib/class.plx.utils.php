@@ -1081,8 +1081,7 @@ EOT;
 
 	}
 
-
-	static function _printSelectDirFilter($item){//[php5.x] compat of _printSelectDir
+	static function _printSelectDirFilter($item){//[php5.0 compat] of _printSelectDir
 		global $modeDir, $root, $extsText;//in global
 		$ext = pathinfo($item,PATHINFO_EXTENSION);
 		return ($item[0] != '.') and
@@ -1094,7 +1093,7 @@ EOT;
 	/**
 	 * fonction privée statique recursive qui imprime les options d'une arborescence de fichiers ou dossiers.
 	 * @author J.P. Pourrez alias bazooka07
-	 * @version 2017-11-20
+	 * @version 2017-11-21
 	 * @param string $root nom du dossier
 	 * @param integer $level niveau de profondeur dans l'arborescence des dossiers
 	 * @param string $prefixParent prefixe pour l'affichage de la valeur de l'option
@@ -1119,30 +1118,8 @@ EOT;
 			}
 			$currentValue = $choice1;
 		}
-/* //php5.2 min
-		$children = array_filter(
-			scandir($root),
-			function($item) use($modeDir, $root, $extsText) {
-				return ($item[0] != '.') and
-					(	is_dir($root.$item) or
-						(	!$modeDir and
-							(	empty($extsText) or
-								(	strpos(
-										$extsText,
-										pathinfo(
-											$item,
-											PATHINFO_EXTENSION
-										)
-									) !== false
-								)
-							)
-						)
-					);
-			}
-		);
-*/
 
-//transmit _printSelectDirFilter func [php5.x]
+//transmet a _printSelectDirFilter func [php5.0]
 		$GLOBALS['modeDir'] = $modeDir;
 		$GLOBALS['root'] = $root;
 		$GLOBALS['extsText'] = $extsText;
