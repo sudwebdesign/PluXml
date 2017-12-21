@@ -821,7 +821,6 @@ table[data-rows-num] th:first-of-type,
 table[data-rows-num] td:first-of-type {
 	padding-left: 12px;
 }
-/*<<<<<<< HEAD */
 /* ---- select pour fichiers (folding) --- */
 .scan-folders.fold option[data-level^="level-XX"] {
 	display: none;
@@ -849,8 +848,6 @@ table[data-rows-num] td:first-of-type {
 .scan-folders.data-files [value$="txt"]::after {
 	color: #ff9800;
 }
-/* ======= */
-
 table[data-rows-num] tr[draggable] td:first-child {
 	background: url(' data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAgAAAAECAYAAACzzX7wAAAAGUlEQVR42mNggIKCgoL/IIyLj1sB+TqhAAB5gyTxdLI4kwAAAABJRU5ErkJggg==') left repeat-y;
 }
@@ -877,12 +874,7 @@ select {
 	-webkit-appearance: none;
 	-moz-appearance: none;
 	overflow: hidden;
-	padding-right: 20px;
-	padding-left: 3px;
-}
-
-select {
-	padding: 0 18px 0 0;
+	padding: 0 20px 0 3px;
 }
 
 select {
@@ -921,4 +913,3 @@ select::-ms-expand {
 	background-color: green;
 	color: #fff;
 }
-/* >>>>>>> master */

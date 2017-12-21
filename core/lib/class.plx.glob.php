@@ -226,5 +226,6 @@ class plxGlob {
 		# On retourne une valeur négative
 		return false;
 	}
-}
+
+} 
 ?>
