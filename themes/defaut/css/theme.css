@@ -110,7 +110,7 @@ body {
 	overflow: initial;/* fix hidden sub-menu */
 }
 .nav {
-	padding-top: 2.7rem;
+	padding-top: 0.7rem;/* hauteur du menu */
 }
 
 ul.menu {
