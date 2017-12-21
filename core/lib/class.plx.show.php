@@ -1,7 +1,5 @@
 <?php
 
-define('CAT_LIST_OPTION', '<option id="#cat_id" value="#cat_url" #cat_selected>#cat_name</li>');
-
 /**
  * Classe plxShow responsable de l'affichage sur stdout
  *
@@ -346,6 +344,7 @@ class plxShow {
 	public function catList($extra='', $format='<li id="#cat_id" class="#cat_status"><a href="#cat_url" title="#cat_name">#cat_name</a></li>', $include='', $exclude='') {
 		# Hook Plugins
 		if(eval($this->plxMotor->plxPlugins->callHook('plxShowLastCatList'))) return;
+
 		# Si on a la variable extra, on affiche un lien vers la page d'accueil (avec $extra comme nom)
 		if($extra != '') {
 			$name = str_replace('#cat_id','cat-home',$format);
@@ -1661,36 +1660,32 @@ class plxShow {
 	/**
 	 * Méthode qui affiche la liste de tous les tags.
 	 *
-	 * @param	format	format du texte pour chaque tag (variable : #tag_size #tag_status, #tag_count, #tag_item, #tag_url, #tag_name, #nb_art)
+	 * @param	format	format du texte pour chaque tag (variable : #tag_size, #tag_id, #tag_status, #tag_count, #tag_item, #tag_url, #tag_name, #nb_art)
 	 * @param	max		nombre maxi de tags à afficher
-	 * @param	order	tri des tags (random, alpha, '')
+	 * @param	order	tri des tags (random, alpha, '' = tri par popularité)
 	 * @return	stdout
 	 * @scope	global
-	 * @author	Stephane F
+	 * @author	Stephane F, J.P. Pourrez
 	 **/
-	public function tagList($format='<li><a class="#tag_size #tag_status" href="#tag_url" title="#tag_name">#tag_name</a></li>', $max='', $order='') {
+	public function tagList($format='<li class="tag #tag_size"><a class="#tag_status" href="#tag_url" title="#tag_name">#tag_name</a></li>', $max='', $order='random') {
 		# Hook Plugins
 		if(eval($this->plxMotor->plxPlugins->callHook('plxShowTagList'))) return;
 
-		$datetime = date('YmdHi');
-		$array=array();
-		$alphasort=array();
 		# On verifie qu'il y a des tags
 		if($this->plxMotor->aTags) {
+			$now = date('YmdHi');
 			# On liste les tags sans créer de doublon
+			$counters = array();
 			foreach($this->plxMotor->aTags as $idart => $tag) {
-				if(isset($this->plxMotor->activeArts[$idart]) AND $tag['date']<=$datetime AND $tag['active']) {
+				if(isset($this->plxMotor->activeArts[$idart]) AND $tag['date']<=$now AND $tag['active']) {
 					if($tags = array_map('trim', explode(',', $tag['tags']))) {
 						foreach($tags as $tag) {
-							if($tag!='') {
-								$t = plxUtils::title2url($tag);
-								if(!isset($array['_'.$tag])) {
-									$array['_'.$tag]=array('name'=>$tag,'url'=>$t,'count'=>1);
+							if(!empty($tag)) {
+								if(!array_key_exists($tag, $counters)) {
+									$counters[$tag] = 1;
+								} else {
+									$counters[$tag]++;
 								}
-								else
-									$array['_'.$tag]['count']++;
-								if(!in_array($t, $alphasort))
-									$alphasort[] = $t; # pour le tri alpha
 							}
 						}
 					}
@@ -1700,109 +1695,198 @@ class plxShow {
 			# tri des tags
 			switch($order) {
 				case 'alpha':
-					if($alphasort) array_multisort($alphasort, SORT_ASC, $array);
+					# Le tri alpha se fait sur la clé
+					ksort($counters); # éventuellement uksort pour tri spécifique sur $tag
 					break;
 				case 'random':
-					$arr_elem = array();
-					$keys = array_keys($array);
+					$keys = array_keys($counters);
 					shuffle($keys);
+					$arr_elem = array();
 					foreach ($keys as $key) {
-						$arr_elem[$key] = $array[$key];
+						$arr_elem[$key] = $counters[$key];
 					}
-					$array = $arr_elem;
+					$counters = $arr_elem;
 					break;
+				default:
+					arsort($counters);
 			}
 
 			# limite sur le nombre de tags à afficher
-			if($max!='') $array=array_slice($array, 0, intval($max), true);
+			if($max!='') $counters = array_slice($counters, 0, intval($max), true);
 
-		}
+			# Recherche de la valeur maxi pour $counters. A multiplier par 10.
+			$max_value = array_reduce(
+				array_values($counters),
+				function($lastValue, $value) {
+					return ($lastValue > $value) ? $lastValue : $value;
+				}, 
+				0
+			);
+			$max_value *= 0.1; # Pour faire varier la taille des caractères de 1 à 11;
 
-		$mode = $this->plxMotor->mode;
+			$mode = $this->plxMotor->mode;
 
-		# Récupération de la liste des tags de l'article si on est en mode 'article'
-		# pour mettre en évidence les tags dans la sidebar s'ils sont attachés à l'article
-		$artTags = array();
-		if($mode=='article') {
-			$artTagList = $this->plxMotor->plxRecord_arts->f('tags');
-			if(!empty($artTagList)) {
-				$artTags = array_map('trim', explode(',', $artTagList));
+			# Récupération de la liste des tags de l'article si on est en mode 'article'
+			# pour mettre en évidence dans la sidebar les tags attachés à l'article
+			$artTags = array();
+			switch($mode) {
+				case 'article':
+					$artTagList = $this->plxMotor->plxRecord_arts->f('tags');
+					if(!empty($artTagList)) {
+						$artTags = array_map('trim', explode(',', $artTagList));
+					}
+					break;
+				case 'home':
+					foreach($this->plxMotor->plxRecord_arts->result as $record) {
+						foreach(array_map('trim', explode(',', $record['tags'])) as $tag) {
+							if(!in_array($tag, $artTags)) {
+								$artTags[] = $tag;
+							}
+						}
+					}
 			}
-		}
 
-		# On affiche la liste
-		$size=0;
-		foreach($array as $tagname => $tag) {
-			$name = str_replace('#tag_id','tag-'.$size++,$format);
-			$name = str_replace('#tag_size','tag-size-'.($tag['count']>10?'max':$tag['count']),$name);
-			$name = str_replace('#tag_count',$tag['count'],$name);
-			$name = str_replace('#tag_item',$tag['url'],$name);
-			$name = str_replace('#tag_url',$this->plxMotor->urlRewrite('?tag/'.$tag['url']),$name);
-			$name = str_replace('#tag_name',plxUtils::strCheck($tag['name']),$name);
-			$name = str_replace('#nb_art',$tag['count'],$name);
-			if($mode=='article' AND in_array($tag['name'],$artTags))
-				$name = str_replace('#tag_status','active', $name);
-			else
-				$name = str_replace('#tag_status',(($mode=='tags' AND $this->plxMotor->cible==$tag['url'])?'active':'noactive'), $name);
-
-			echo $name;
+			# On affiche la liste
+			$id=0;
+			foreach($counters as $tag => $counter) {
+				$url = plxUtils::title2url($tag);
+				$status = '';
+				switch($mode) {
+					case 'article':
+						if(in_array($tag, $artTags)) {
+							$status = 'active';
+						}
+						break;
+					case 'tags':
+						$status = ($this->plxMotor->cible == $url) ? 'active' : 'noactive';
+				}
+				$replaces = array(
+					'#tag_id'		=> 'tag-'.$id++,
+					'#tag_size'		=> 'tag-size-'.(1 + intval($counter / $max_value)), # taille des caractères
+					'#tag_count'	=> $counter,
+					'#nb_art'		=> $counter,
+					'#tag_item'		=> $url,
+					'#tag_url'		=> $this->plxMotor->urlRewrite('?tag/'.$url),
+					'#tag_name'		=> plxUtils::strCheck($tag),
+					'#tag_status'	=> $status
+				);
+				echo str_replace(array_keys($replaces), array_values($replaces), $format);
+			}
 		}
 	}
 
 	/**
 	 * Méthode qui affiche la liste des archives
 	 *
-	 * @param	format	format du texte pour l'affichage (variable : #archives_id, #archives_status, #archives_nbart, #archives_url, #archives_name, #archives_month, #archives_year)
+	 * @param	format	format du texte pour l'affichage (variable : #archives_id, #archives_status, #archives_selected, #archives_nbart, #archives_url, #archives_name, #archives_month, #archives_year)
 	 * @return	stdout
 	 * @scope	global
-	 * @author	Stephane F
+	 * @author	Stephane F, J.P. Pourrez
+	 * @version 2017-06-15
+	 *
 	 **/
 	public function archList($format='<li id="#archives_id"><a class="#archives_status" href="#archives_url" title="#archives_name">#archives_name</a></li>'){
+
 		# Hook Plugins
 		if(eval($this->plxMotor->plxPlugins->callHook('plxShowArchList'))) return;
 
-		$curYear=date('Y');
-		$array = array();
-
+		# on compte le nombre d'articles pour chaque mois de la période et pour chaque année passée
 		$plxGlob_arts = clone $this->plxMotor->plxGlob_arts;
+		if($files = $plxGlob_arts->query('/^\d{4}\.(?:\d{3},|home,)*('.$this->plxMotor->activeCats.')(?:,\d{3}|,home)*\.\d{3}\.\d{12}\.[\w-]+\.xml$/','art','rsort',0,false,'before')) {
+			# compte les années en mois !
+			$periode = 12; # on détaille pour les 12 derniers mois
+			$annee_mois_cc = intval(date('Y')) * 12;
+			$ce_mois_ci = $annee_mois_cc + intval(date('n')) - 1; # on compte les mois à partir de 0
+			$premier_mois = $ce_mois_ci - $periode; # 1er mois de la période
+			$cumuls_mois = array();
+			$cumuls_ans = array();
+			$total = 0;
 
-		if($files = $plxGlob_arts->query('/^[0-9]{4}.(?:[0-9]|home|,)*(?:'.$this->plxMotor->activeCats.'|home)(?:[0-9]|home|,)*.[0-9]{3}.[0-9]{12}.[a-z0-9-]+.xml$/','art','rsort',0,false,'before')) {
+			# récupère l'année et le mois de chaque article
+			$motif = '@^\d{4}\.(?:\d{3}|home)+(?:,\d{3}|,home)*\.\d{3}\.(\d{4})(\d{2})\d{6}\.[\w-]+\.xml$@';
 			foreach($files as $id => $filename){
-				if(preg_match('/([0-9]{4}).((?:[0-9]|home|,)*(?:'.$this->plxMotor->activeCats.'|home)(?:[0-9]|home|,)*).[0-9]{3}.([0-9]{4})([0-9]{2})([0-9]{6}).([a-z0-9-]+).xml$/',$filename,$capture)){
-					if($capture[3]==$curYear) {
-						if(!isset($array[$capture[3]][$capture[4]])) $array[$capture[3]][$capture[4]]=1;
-						else $array[$capture[3]][$capture[4]]++;
-					} else {
-						if(!isset($array[$capture[3]])) $array[$capture[3]]=1;
-						else $array[$capture[3]]++;
+				if(preg_match($motif, $filename, $capture)){
+					$total++;
+					$annee = intval($capture[1]);
+					$annee_mois = $annee * 12;
+
+					# cumul pour chaque mois de la période
+					$mois = $annee_mois + intval($capture[2]) - 1; # Nb de mois depuis l'an 0
+					if($mois >= $premier_mois) {
+						# l'index de $cumuls_mois est le nombre de mois depuis l'an 0
+						if(isset($cumuls_mois[$mois]))
+							$cumuls_mois[$mois]++;
+						else
+							$cumuls_mois[$mois] = 1;
+					}
+
+					# cumul pour les années écoulées
+					if($annee_mois < $annee_mois_cc) {
+						# l'index de $cumuls_ans est l'année
+						if(isset($cumuls_ans[$annee]))
+							$cumuls_ans[$annee]++;
+						else
+							$cumuls_ans[$annee] = 1;
 					}
 				}
 			}
-			krsort($array);
-			# Affichage pour l'année en cours
-			if(isset($array[$curYear])) {
-				foreach($array[$curYear] as $month => $nbarts){
-					$name = str_replace('#archives_id','archives-'.$curYear.$month,$format);
-					$name = str_replace('#archives_name',plxDate::getCalendar('month', $month).' '.$curYear,$name);
-					$name = str_replace('#archives_year',$curYear,$name);
-					$name = str_replace('#archives_month',plxDate::getCalendar('month', $month),$name);
-					$name = str_replace('#archives_url', $this->plxMotor->urlRewrite('?archives/'.$curYear.'/'.$month), $name);
-					$name = str_replace('#archives_nbart',$nbarts,$name);
-					$name = str_replace('#archives_status',(($this->plxMotor->mode=="archives" AND $this->plxMotor->cible==$curYear.$month)?'active':'noactive'), $name);
-					echo $name;
-				}
+			krsort($cumuls_mois);
+			krsort($cumuls_ans);
+
+			# Affichage pour la période en cours
+			$page_actuelle = ($this->plxMotor->mode == "archives") ? $this->plxMotor->cible : '';
+			// mb_internal_encoding('utf-8');
+			$id = 0;
+			foreach($cumuls_mois as $m => $nbarts) {
+				$id++;
+				$mois = str_pad(($m % 12) + 1, 2, '0', STR_PAD_LEFT);
+				$annee = intval($m / 12);
+				$active = $page_actuelle == ''.$annee.$mois;
+				$nom_mois = plxDate::getCalendar('month', $mois);
+				$motifs =  array(
+					'#archives_id'		=> 'arch-month-'.str_pad($id, 2, '0', STR_PAD_LEFT),
+					'#archives_name'	=> $nom_mois.' '.$annee,
+					'#archives_year'	=> $annee,
+					'#archives_month'	=> $nom_mois,
+					'#archives_url'		=> $this->plxMotor->urlRewrite('?archives/'.$annee.'/'.$mois),
+					'#archives_nbart'	=> $nbarts,
+					'#archives_status'	=> (($active) ? 'active' : 'noactive'),
+					'#archives_selected'=> (($active) ? 'selected' : '')
+				);
+				echo str_replace(array_keys($motifs), array_values($motifs), $format);
 			}
-			# Affichage pour les années précédentes
-			unset($array[$curYear]);
-			foreach($array as $year => $nbarts){
-				$name = str_replace('#archives_id','archives-'.$year,$format);
-				$name = str_replace('#archives_name',$year,$name);
-				$name = str_replace('#archives_year',$year,$name);
-				$name = str_replace('#archives_month',$year,$name);
-				$name = str_replace('#archives_url', $this->plxMotor->urlRewrite('?archives/'.$year), $name);
-				$name = str_replace('#archives_nbart',$nbarts,$name);
-				$name = str_replace('#archives_status',(($this->plxMotor->mode=="archives" AND $this->plxMotor->cible==$year)?'active':'noactive'), $name);
-				echo $name;
+
+			# Affichage annuel
+			$id = 0;
+			foreach($cumuls_ans as $annee => $nbarts){
+				$id++;
+				$active = $page_actuelle == ''.$annee;
+				$motifs = array(
+					'#archives_id'		=> 'arch-year-'.str_pad($id, 2, '0', STR_PAD_LEFT),
+					'#archives_name'	=> L_YEAR.' '.$annee,
+					'#archives_year'	=> $annee,
+					'#archives_month'	=> L_YEAR,
+					'#archives_url'		=> $this->plxMotor->urlRewrite('?archives/'.$annee),
+					'#archives_nbart'	=> $nbarts,
+					'#archives_status'	=> ($active) ? 'active' : 'noactive',
+					'#archives_selected'=> ($active) ? 'selected' : ''
+				);
+				echo str_replace(array_keys($motifs), array_values($motifs), $format);
+			}
+
+			# Total des articles
+			if(strpos($format, '#archives_nbart') !== false) {
+				$motifs = array(
+					'#archives_id'		=> 'arch-total',
+					'#archives_name'	=> L_TOTAL.' ',
+					'#archives_year'	=> str_repeat('–', 4),
+					'#archives_month'	=> L_TOTAL,
+					'#archives_url'		=> $this->plxMotor->urlRewrite(),
+					'#archives_nbart'	=> $total,
+					'#archives_status'	=> ($active) ? 'active' : 'noactive',
+					'#archives_selected'=> ($active) ? 'selected' : ''
+				);
+				echo str_replace(array_keys($motifs), array_values($motifs), $format);
 			}
 		}
 	}

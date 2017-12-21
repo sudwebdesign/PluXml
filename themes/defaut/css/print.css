@@ -15,7 +15,10 @@
 /* ----- Menu ----- */
 
 @media print {
-	nav, .nav { /* cache le menu du site */
-		display:none;
+	nav, .nav {
+		/* display:none; *//* pour cacher le menu du site */
+	}
+	.sticky {/* fix: le  head descend quant on scrlldwn en prévisu ff 43 */
+		position: initial;
 	}
 }

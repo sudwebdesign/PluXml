@@ -1,10 +1,11 @@
 <?php if(!defined('PLX_ROOT')) exit; ?>
 
-	<aside class="aside col sml-12 med-4">
+	<aside class="aside col sml-12 med-3">
 <?php #if($plxMotor->mode != 'home') eval($plxShow->callHook("ResponsiveSlidesJs"));#or in home | sidebar ?>
 <?php eval($plxShow->callHook('MyMultiLingue')) ?>
 <?php eval($plxShow->callHook('plxMyShopShowMiniPanier')); ?>
 <?php eval($plxShow->callHook('loginLogout')); ?>
+
 		<h3>
 			<?php $plxShow->lang('CATEGORIES'); ?>
 		</h3>
@@ -26,7 +27,7 @@
 		</h3>
 
 		<ul class="tag-list">
-			<?php $plxShow->tagList('<li class="tag #tag_size"><a class="#tag_status" href="#tag_url" title="#tag_name">#tag_name</a></li>'); ?>
+			<?php $plxShow->tagList('<li class="tag #tag_size"><a class="#tag_status" href="#tag_url" title="#tag_name">#tag_name</a></li>', 20); ?>
 		</ul>
 		<h3>
 			<?php $plxShow->lang('LATEST_COMMENTS'); ?>

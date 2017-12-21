@@ -41,8 +41,11 @@ function pluginsList($plugins, $defaultLang, $type) {
 			else
 			$icon=PLX_CORE.'admin/theme/images/icon_plugin.png';
 
-			$output .= '<tr class="top"'.($type?' draggable="true" ondragover="event.preventDefault()" ondragend="DragDrop.dragend(event, \'plugins-table\')" ondragenter="DragDrop.dragenter(event)" ondragstart="DragDrop.dragstart(event)"':'').'>';
-
+			# plugin activé uniquement côté site (<scope> == 'site')
+			if(empty($plugInstance) and $plugInstance=plxPlugins::getInstance($plugName)) {
+				$plugInstance->getInfos();
+			}
+			$output .= '<tr class="top" data-scope="'.$plugInstance->getInfo('scope').'">';
 				# checkbox
 				$output .= '<td'.($type?' class="tb-drag-icon"':'').'>';
 				$output .= '<input type="hidden" name="plugName[]" value="'.$plugName.'" />';
@@ -50,7 +53,6 @@ function pluginsList($plugins, $defaultLang, $type) {
 				$output .= '</td>';
 				# icon
 				$output .= '<td><img src="'.$icon.'" alt="" /></td>';
-
 				# plugin infos
 				$output .= '<td class="wrap">';
 					# message d'alerte si plugin non configuré
@@ -119,6 +121,8 @@ $breadcrumbs = array();
 $breadcrumbs[] = '<li><a '.($_SESSION['selPlugins']=='1'?'class="selected" ':'').'href="parametres_plugins.php?sel=1">'.L_PLUGINS_ACTIVE_LIST.'</a>&nbsp;('.$nbActivePlugins.')</li>';
 $breadcrumbs[] = '<li><a '.($_SESSION['selPlugins']=='0'?'class="selected" ':'').'href="parametres_plugins.php?sel=0">'.L_PLUGINS_INACTIVE_LIST.'</a>&nbsp;('.$nbInactivePlugins.')</li>';
 
+$data_rows_num = ($sel=='1') ?  'data-rows-num=\'name^="plugOrdre"\'' : false;
+
 # On inclut le header
 include(dirname(__FILE__).'/top.php');
 
@@ -127,7 +131,12 @@ include(dirname(__FILE__).'/top.php');
 <form action="parametres_plugins.php" method="post" id="form_plugins">
 
 	<div class="inline-form action-bar">
-		<h2><?php echo L_PLUGINS_TITLE ?></h2>
+		<h2>
+			<?php echo L_PLUGINS_TITLE ?>
+			<span data-scope="admin">Admin</span>
+			<span data-scope="site">Site</span>
+		</h2>
+
 		<ul class="menu">
 			<?php echo implode($breadcrumbs); ?>
 		</ul>
@@ -143,7 +152,7 @@ include(dirname(__FILE__).'/top.php');
 	<?php eval($plxAdmin->plxPlugins->callHook('AdminSettingsPluginsTop')) # Hook Plugins ?>
 
 	<div class="scrollable-table">
-		<table id="plugins-table" class="full-width">
+		<table id="plugins-table" class="full-width"<?php if(!empty($data_rows_num)) echo $data_rows_num; ?>>
 			<thead>
 				<tr>
 					<th><input type="checkbox" onclick="checkAll(this.form, 'chkAction[]')" /></th>
@@ -160,9 +169,6 @@ include(dirname(__FILE__).'/top.php');
 			</tbody>
 		</table>
 	</div>
-
-	<?php if($_SESSION['selPlugins']=='1') : ?>
-	<?php endif; ?>
 
 </form>
 
