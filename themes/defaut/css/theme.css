@@ -229,6 +229,7 @@ a.active {
 }
 .header a:hover {
 	text-decoration: none;
+}
 .static.group.noactive,
 .static.menu.noactive a {
 	color: #258fd6;
@@ -564,12 +565,6 @@ a.active {
 	color: #034F84;
 }
 
-@media (max-width: 768px) {
-	.aside {
-		padding-left: 1.5rem;
-	}
-}
-
 /* ---------- Footer ---------- */
 
 .footer {
@@ -607,4 +602,5 @@ a.active {
 @media (max-width: 768px) {
 	.menu > li ul {
 		position: relative !important;
+	}
 }
