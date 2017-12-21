@@ -59,6 +59,7 @@
 		</div>
 
 	</header>
-<?php if($plxMotor->mode == 'home') eval($plxShow->callHook("ResponsiveSlidesJs"));#or in home | sidebar ? ?>
 
 	<div class="bg"></div>
+
+<?php if($plxMotor->mode == 'home') eval($plxShow->callHook("ResponsiveSlidesJs"));#or in home | sidebar ? ?>

@@ -76,12 +76,15 @@ body {
 }
 
 .bg {
-	background: url(../img/bg.jpg) no-repeat top left;
+	background: #630901 url(../img/banner.jpg) top center repeat-x;
+/*	background: url(../img/bg.jpg) no-repeat top left;
 	-webkit-background-size: cover;
 	-moz-background-size: cover;
 	-o-background-size: cover;
 	background-size: cover;
-	height: 250px;
+*/
+	height: 207px;
+	margin-top: -16px;/* rslide */
 }
 
 @media (max-width: 463px) {
@@ -217,7 +220,7 @@ a.active {
 	color: #fff;
 	text-align: center;
 }
-.header, .rslidesfill{
+.header, .rslidesfill, .bg{
 	background-attachment: fixed;
 	box-sizing: border-box;
 	box-shadow: 0 -1px 10px rgba(0, 0, 0, .7) inset;
