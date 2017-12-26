@@ -86,12 +86,18 @@ body {
 	height: 207px;
 	margin-top: -16px;/* rslide */
 }
-
+@media (max-width: 767px) {
+	.logo {
+		background-size: 4rem;
+		background-position: 0 0;
+		padding-left: 4rem;
+	}
+}
 @media (max-width: 463px) {
 	.logo {
 		background-size: 3rem;
-		background-position: 0 1.23rem;
-		padding-left: 0.1rem;
+		/* background-position: 0 0; */
+		padding-left: 3rem;
 	}
 	.header h1 * {
 		font-size: 1.23rem;
@@ -108,6 +114,9 @@ body {
 /* ----- Nav / Menu ----- */
 .header.sticky div.grid{
 	overflow: initial;/* fix hidden sub-menu */
+}
+.sticky {
+	width: 100%;
 }
 .nav {
 	padding-top: 0.7rem;/* hauteur du menu */
