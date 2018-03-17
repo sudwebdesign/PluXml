@@ -49,6 +49,7 @@ function pluginsList($plugins, $defaultLang, $type) {
 				$plugInstance->getInfos();
 			}
 			$output .= '<tr class="top" data-scope="'.$plugInstance->getInfo('scope').'">'."\n";
+
 				# checkbox
 				$output .= '<td'.($type?' class="tb-drag-icon"':'').'>';
 				$output .= '<input type="hidden" name="plugName[]" value="'.$plugName.'" />';
