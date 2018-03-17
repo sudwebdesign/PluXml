@@ -80,7 +80,7 @@ class plxCorePlugins  {
 				) {
 					if(
 						empty($scope) or
-						(defined('PLX_ADMIN') and $scope == 'admin') or
+						defined('PLX_ADMIN') or
 						(!defined('PLX_ADMIN') and $scope == 'site')
 					) {
 						if($instance = $this->getInstance($name)) {
@@ -236,17 +236,20 @@ class plxCorePlugins  {
 		$xml = "<?xml version='1.0' encoding='".PLX_CHARSET."'?>\n";
 		$xml .= "<document>\n";
 		foreach($this->aPlugins as $name=>$plugin) {
-			if(!empty($plugin)) {
-				$scope = $plugin->getInfo('scope');
-			} elseif($plugInstance=$this->getInstance($name)) {
-				$scope = $plugInstance->getInfo('scope');
-			} else {
-				$scope = '';
-			}
-			$xml .= <<< PLUGIN
+			#Fix, Lors du tri des plugins, les modules sont supprimés du fichier de conf plugins.xml, ici aussi.
+			if(is_object($plugin) && $plugin->CORE=='plugin') {
+				if(!empty($plugin)) {
+					$scope = $plugin->getInfo('scope');
+				} elseif($plugInstance=$this->getInstance($name)) {
+					$scope = $plugInstance->getInfo('scope');
+				} else {
+					$scope = '';
+				}
+				$xml .= <<< PLUGIN
 	<plugin name="$name" scope="$scope"></plugin>
 
 PLUGIN;
+			}
 		}
 		$xml .= "</document>";
 
