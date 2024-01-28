@@ -684,7 +684,7 @@ EOT;
 
 				# controle de l'adresse email
 				$email = trim($content[$user_id.'_email']);
-				if(isset($content[$user_id.'_newuser']) AND empty($email))
+				if($this->aConf['lostpassword'] AND isset($content[$user_id.'_newuser']) AND empty($email))
 					return plxMsg::Error(L_ERR_INVALID_EMAIL);
 				if(!empty($email) AND !plxUtils::checkMail($email))
 					return plxMsg::Error(L_ERR_INVALID_EMAIL);
@@ -737,7 +737,7 @@ EOT;
 					$users_login[] = $user['login'];
 				}
 				# controle de l'unicité de l'adresse e-mail
-				if(in_array($user['email'], $users_email)) {
+				if($this->aConf['lostpassword'] AND in_array($user['email'], $users_email)) {
 					ob_end_clean();
 					return plxMsg::Error(L_ERR_EMAIL_ALREADY_EXISTS.' : '.plxUtils::strCheck($user['email']));
 				}
