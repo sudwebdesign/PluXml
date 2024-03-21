@@ -84,6 +84,8 @@ if(
 # Chargement des fichiers de langue en fonction du profil de l'utilisateur connecté
 loadLang('../lang/'.$lang.'/admin.php');
 loadLang('../lang/'.$lang.'/core.php');
+loadLang('../lang/urls.php');# urls classiques
+if(!defined('L_ARTICLE_URL')) loadLang('../lang/' . $lang . '/urls.php');# urls nationales
 
 # on stocke la langue utilisée pour l'affichage de la zone d'administration en variable de session
 # nb: la langue peut etre modifiée par le hook AdminPrepend via des plugins

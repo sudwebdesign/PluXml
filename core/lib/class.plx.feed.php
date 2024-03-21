@@ -74,9 +74,9 @@ class plxFeed extends plxMotor {
 		$this->mode = 'article'; # Mode du flux
 		$this->motif = '#^\d{4}\.(?:pin,|home,|\d{3},)*(?:'.$this->activeCats.')(?:,\d{3})*\.\d{3}\.\d{12}\.[\w-]+\.xml$#';
 		$this->cible = '';
-		$idioms = plxUtils::getI18nUrls();
 
 		if(!empty($this->get)) {
+			$idioms = plxUtils::getI18nUrls();
 			if(preg_match('#^(?:atom/|rss/)?(?:' . implode('|', $idioms['L_CATEGORY_URL']) . ')(\d+)/?#', $this->get, $capture)) {
 				$this->mode = 'categorie'; # Mode du flux
 				# On récupère la catégorie cible et on complète sur 3 caractères

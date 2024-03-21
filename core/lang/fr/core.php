@@ -151,17 +151,3 @@ const L_FEED_WRITTEN_BY				= 'Rédigé par';
 const L_AUTH_LOGIN_FIELD = 'Login de connexion';
 const L_AUTH_PASSWORD_FIELD = 'Mot de passe';
 const L_LOST_PASSWORD = 'Mot de passe oublié ?';
-
-# for urls - must be urlify !
-
-const L_ARTICLE_URL = 'article';
-const L_STATIC_URL = 'static';
-const L_CATEGORY_URL = 'categorie';
-const L_USER_URL = 'auteur';
-const L_TAG_URL = 'mot-cle';
-const L_ARCHIVES_URL = 'archive';
-const L_BLOG_URL = 'blog';
-const L_COMMENTS_URL = 'commentaires';
-const L_PAGE_URL = 'page';
-const L_DOWNLOAD_URL = 'telechargement';
-

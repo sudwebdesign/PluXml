@@ -20,8 +20,10 @@ $lang = $plxMotor->aConf['default_lang'];
 # Hook Plugins
 if(eval($plxMotor->plxPlugins->callHook('SitemapBegin'))) return;
 
-# chargement du fichier de langue
+# chargement des fichiers de langue
 loadLang(PLX_CORE . 'lang/' . $lang . '/core.php');
+loadLang(PLX_CORE.'lang/urls.php');# urls classiques
+if(!defined('L_ARTICLE_URL')) loadLang(PLX_CORE.'lang/' . $lang . '/urls.php');# urls nationales
 
 $plxMotor->prechauffage();
 $plxMotor->demarrage();

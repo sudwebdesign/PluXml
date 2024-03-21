@@ -1023,7 +1023,7 @@ class plxUtils {
 		$result = array();
 		$pattern = '#^\s*const\s*' . $key . '\s*=\s*\'([^\']+)\'#';
 		foreach(array_keys(self::getLangs()) as $lang) {
-			$lines = file(PLX_ROOT . 'core/lang/' . $lang . '/core.php', FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+			$lines = file(PLX_ROOT . 'core/lang/' . $lang . '/urls.php', FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
 			if(empty($lines)) {
 				continue;
 			}

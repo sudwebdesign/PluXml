@@ -23,8 +23,10 @@ $lang = $plxFeed->aConf['default_lang'];
 
 eval($plxFeed->plxPlugins->callHook('FeedBegin')); # Hook Plugins
 
-# Chargement du fichier de langue du core de PluXml
+# Chargement des fichiers de langue du core de PluXml
 loadLang(PLX_CORE . 'lang/' . $lang . '/core.php');
+loadLang(PLX_CORE . 'lang/urls.php');# urls classiques
+if(!defined('L_ARTICLE_URL')) loadLang(PLX_CORE . 'lang/' . $lang . '/urls.php');# urls nationales
 
 if(!$plxFeed->aConf['enable_rss']) {
 	plxFeed::notFound(); # exit
