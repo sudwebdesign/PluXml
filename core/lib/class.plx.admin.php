@@ -439,21 +439,18 @@ RewriteRule ^feed\/(.*)$ feed.php?$1 [L]
 	/**
 	 * Méthode qui controle l'accès à une page en fonction du profil de l'utilisateur connecté
 	 *
-	 * @param	profil		profil(s) autorisé(s)
+	 * @param	profil		profil(s) autorisé(s) string ou tableau
 	 * @param	redirect	si VRAI redirige sur la page index.php en cas de mauvais profil(s)
 	 * @return	null
 	 * @author	Stephane F
 	 **/
 	public function checkProfil($profil, $redirect=true) {
 		if(isset($_SESSION['profil'])) {
-			$args = func_get_args();
-			if(is_bool($redirect)) {
-				$args = array($args[0]);
-			} else {
+			$validProfil = is_array($profil) ? in_array($_SESSION['profil'], $profil) : ($_SESSION['profil'] == $profil);
+
+			if(!is_bool($redirect)) {
 				$redirect = true;
 			}
-
-			$validProfil = is_array($args) ? in_array($_SESSION['profil'], $args) : ($_SESSION['profil'] == $profil);
 
 			if(!$redirect) {
 				return $validProfil;
