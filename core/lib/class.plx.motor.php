@@ -795,24 +795,22 @@ class plxMotor {
 			xml_parser_set_option($parser,XML_OPTION_SKIP_WHITE,0);
 			xml_parse_into_struct($parser,$data,$values,$iTags);
 			if(PHP_VERSION_ID >= 80000) {
-		unset($parser);
+				unset($parser);
 			} else {
-		xml_parser_free($parser);
+				xml_parser_free($parser);
 			}
 
-			$meta_description = plxUtils::getValue($iTags['meta_description'][0]);
-			$meta_keywords = plxUtils::getValue($iTags['meta_keywords'][0]);
 			$art = array(
-				'filename'		=> $filename,
+				'filename'			=> $filename,
 				# Recuperation des valeurs de nos champs XML
 				'title'				=> plxUtils::getValue($values[$iTags['title'][0]]['value']),
 				'allow_com'			=> plxUtils::getValue($values[$iTags['allow_com'][0]]['value'], 0),
 				'template'			=> plxUtils::getValue($values[$iTags['template'][0]]['value'], 'article.php'),
 				'chapo'				=> plxUtils::getValue($values[$iTags['chapo'][0]]['value']),
 				'content'			=> plxUtils::getValue($values[$iTags['content'][0]]['value']),
-				'tags'				=> plxUtils::getValue($values[ $iTags['tags'][0] ]['value']),
-				'meta_description'	=> plxUtils::getValue($values[$meta_description]['value']),
-				'meta_keywords'		=> plxUtils::getValue($values[$meta_keywords]['value']),
+				'tags'				=> plxUtils::getValue($values[$iTags['tags'][0] ]['value']),
+				'meta_description'	=> plxUtils::getValue($values[$iTags['meta_description'][0]]['value']),
+				'meta_keywords'		=> plxUtils::getValue($values[$iTags['meta_keywords'][0]]['value']),
 				'title_htmltag'		=> plxUtils::getValue($values[$iTags['title_htmltag'][0]]['value']),
 				'thumbnail'			=> isset($iTags['thumbnail']) ? plxUtils::getValue($values[$iTags['thumbnail'][0]]['value']) : '',
 				'thumbnail_title'	=> isset($iTags['thumbnail_title']) ? plxUtils::getValue($values[$iTags['thumbnail_title'][0]]['value']) : '',
