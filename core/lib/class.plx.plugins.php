@@ -161,6 +161,7 @@ About this server :
 				} # fin pour l'administrateur
 
 				if(
+					!PLX_DEBUG and
 					!empty($pluginName) and
 					(!isset($_SESSION['profil']) or $_SESSION['profil'] > 0)
 				) {
