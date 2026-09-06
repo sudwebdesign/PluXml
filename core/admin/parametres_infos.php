@@ -39,9 +39,10 @@ if($emailBuild) {
 <p><strong><?php echo L_PLUXML_VERSION; ?> <?php echo PLX_VERSION; ?> (<?php echo L_INFO_CHARSET ?> <?php echo PLX_CHARSET ?>)</strong></p>
 <ul class="unstyled-list">
 	<li><?php echo L_INFO_PHP_VERSION; ?> : <?php echo phpversion(); ?></li>
-	<?php if (!empty($_SERVER['SERVER_SOFTWARE'])) { ?>
+<?php if (!empty($_SERVER['SERVER_SOFTWARE'])) { ?>
 	<li><?php echo $_SERVER['SERVER_SOFTWARE']; ?></li>
-	<?php } ?>
+<?php } ?>
+	<li><?= PLX_DEBUG ? php_uname() : PHP_OS ?></li>
 </ul>
 <ul class="unstyled-list">
 	<?php plxUtils::testWrite(PLX_ROOT) ?>
