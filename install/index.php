@@ -289,9 +289,9 @@ function install_datas($content, $config) {
 <comment>
 	<author><![CDATA[pluxml]]></author>
 	<type>normal</type>
-	<ip>127.0.0.1</ip>
+	<ip><?= plxUtils::getIp() ?></ip>
 	<mail>contact@pluxml.org</mail>
-	<site>PLX_URL_REPO></site>
+	<site><?= PLX_URL_REPO ?></site>
 	<content><?= plxUtils::strRevCheck(L_DEFAULT_COMMENT_CONTENT) ?></content>
 </comment>
 <?php
