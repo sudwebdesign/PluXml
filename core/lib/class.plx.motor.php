@@ -1056,10 +1056,10 @@ class plxMotor {
 			'parent' => filter_var($content['parent'], FILTER_VALIDATE_INT, array('options' => array('default' => ''))),
 			# On récupère l'adresse IP du posteur
 			'ip' => plxUtils::getIp(),
-			# On vérifie le mail
-			'mail' => filter_var($content['mail'], FILTER_VALIDATE_EMAIL, array('options' => array('default' => ''))),
-			# On vérifie le site
-			'site' => filter_var($content['site'], FILTER_VALIDATE_URL, array('options' => array('default' => ''))),
+			# On vérifiera le mail dans self::addCommentaire()
+			'mail' => $content['mail'],
+			# On vérifiera le site dans self::addCommentaire()
+			'site' => $content['site'],
 			# On génère le nom du fichier. On modère le commentaire si besoin => underscore
 			'filename' => (!empty($this->aConf['mod_com']) ? '_' : '') . $artId .'.' . time() . '-' . $idx . '.xml',
 		);
@@ -1090,6 +1090,29 @@ class plxMotor {
 			return;
 		}
 
+		# controle de $content['parent']
+		$parent = filter_var($content['parent'], FILTER_VALIDATE_INT, array('options' => array('default' => '')));
+
+		# controle de $content['mail]
+		$mail = filter_var($content['mail'], FILTER_VALIDATE_EMAIL, array('options' => array('default' => '')));
+
+		# contrôle de $content['site']
+		$site = filter_var($content['site'], FILTER_VALIDATE_URL, array('options' => array('default' => '')));
+		if(!empty($content['site'])) {
+			$parts = parse_url($site);
+			if(empty($parts) or empty($parts['host'])) {
+				$site = '';
+			} else {
+				if(empty($parts['scheme'])) {
+					$parts['scheme'] = 'http';
+				}
+				$site = $parts['scheme'] . '://' . $parts['host'];
+				if(!empty($parts['path'])) {
+					$site .= preg_replace('#/index\.[a-z]+$#', '/', $parts['path']);
+				}
+			}
+		}
+
 		# On genere le contenu de notre fichier XML
 		ob_start();
 ?>
@@ -1097,10 +1120,10 @@ class plxMotor {
 	<type><?= $content['type'] ?></type>
 	<author><?= $content['author'] ?></author>
 	<content><![CDATA[<?= plxUtils::cdataCheck($content['content']) ?>]]></content>
-	<parent><?= $content['parent'] ?></parent>
+	<parent><?= $parent ?></parent>
 	<ip><?= $content['ip'] ?></ip>
-	<mail><?= $content['mail'] ?></mail>
-	<site><?= $content['site'] ?></site>
+	<mail><?= $mail ?></mail>
+	<site><?= $site ?></site>
 <?php
 		# Hook plugins
 		eval($this->plxPlugins->callHook('plxMotorAddCommentaireXml'));

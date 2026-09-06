@@ -147,22 +147,29 @@ class plxUtils {
 	 * Méthode qui vérifie si l'url passée en paramètre correspond à un format valide
 	 *
 	 * @param	site		url d'un site
+	 * @param	$reset		reset $site si échec
 	 * @return	boolean		vrai si l'url est bien formatée
 	 **/
-	public static function checkSite(&$site, $reset=true) {
+	public static function checkSite(&$site, $reset=true, $parse=true) {
+
+		if(empty(trim($site))) {
+			return true;
+		}
 
 		$site = preg_replace('#([\'"].*)#', '', $site);
+		if(isset($site[0]) AND $site[0]=='?') {
+			return true; # url interne commençant par ?
+		}
 
-		if(isset($site[0]) AND $site[0]=='?') return true; # url interne commençant par ?
-		# On vérifie le site via une expression régulière
-		# Méthode imme_emosol - http://mathiasbynens.be/demo/url-regex
-		# modifiée par Amaury Graillat pour prendre en compte les tirets dans les urls
-		if(preg_match('@(https?|s?ftp)://(-\.)?([^\s/?\.#]+\.?)+([/?][^\s]*)?$@iS', $site))
-				return true;
-		else {
-			if($reset) $site='';
+		$url = filter_var($site, FILTER_VALIDATE_URL, array('options' => array('default' => '')));
+		if($url === false) {
+			if($reset) {
+				$site = '';
+			}
 			return false;
 		}
+
+		return true;
 	}
 
 	/**

@@ -1670,7 +1670,6 @@ RewriteRule ^feed\/(.*)$ feed.php?$1 [L]
 		}
 		# On génère le contenu du commentaire
 		$idx = $this->nextIdArtComment($artId);
-		$filename = $artId . '.' . time() . '-' . $idx . '.xml';
 
 		$message = strip_tags(trim($content['content']), self::ENABLED_HTML_TAGS_COMMENTS);
 		if(empty($message)) {
@@ -1681,12 +1680,12 @@ RewriteRule ^feed\/(.*)$ feed.php?$1 [L]
 		$comment = array(
 			'type'		=> 'admin',
 			'author'	=> $this->aUsers[$userId]['name'],
-			'content'	=> strip_tags(trim($content['content']), self::ENABLED_HTML_TAGS_COMMENTS),
+			'content'	=> $message,
 			'parent'	=> filter_var($content['parent'], FILTER_VALIDATE_INT, array('options' => array('default' => ''))),
 			'ip'		=> plxUtils::getIp(),
 			'mail'		=> $this->aUsers[$userId]['email'],
 			'site'		=> $this->racine,
-			'filename'	=> $filename,
+			'filename'	=> $artId . '.' . time() . '-' . $idx . '.xml',
 		);
 
 		# On peut créer le commentaire
