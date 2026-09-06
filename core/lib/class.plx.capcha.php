@@ -136,12 +136,18 @@ class plxCapcha {
 		for($i=0; $i<strlen($this->_word); $i++) {
 			$color = imagecolorallocate($img, rand(0,200), rand(0,200), rand(0,200));
 			$fontSize = rand(25, 30);
-			$fontIndex = rand(1, 10);
+			$fontFamily = rand(1, 10) . '.ttf';
 			$x = rand(10, 20) + ($dx * $i);
 			$x = rand($x - 5, $x + 5);
 			$y = rand(28, self::CHAR_HEIGHT - 8);
 			$angle = rand(-25, 25);
-			imagettftext($img, $fontSize, $angle, $x, $y ,  $color, PLX_CORE . 'lib/fonts/' . $fontIndex . '.ttf', $this->_word[$i]);
+			if(DIRECTORY_SEPARATOR == '/') {
+				$fontPath = PLX_CORE . 'lib/fonts/' . $fontFamily;
+			} else {
+				# Hack against Windows
+				$fontPath = implode(DIRECTORY_SEPARATOR, array(realpath(PLX_CORE), 'lib', 'fonts', $fontFamily));
+			}
+			imagettftext($img, $fontSize, $angle, $x, $y , $color, $fontPath, $this->_word[$i]);
 		}
 
 		# Add random lines
