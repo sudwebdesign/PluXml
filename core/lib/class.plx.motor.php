@@ -325,23 +325,28 @@ class plxMotor {
 				# Url de l'article
 				$url = $this->urlRewrite('?article'.intval($this->plxRecord_arts->f('numero')).'/'.$this->plxRecord_arts->f('url'));
 				eval($this->plxPlugins->callHook('plxMotorDemarrageNewCommentaire')); # Hook Plugins
-				$redirect = $url . '#com_message';
-				if($retour == 'c') { # Le commentaire a été publié
+
+				unset($_SESSION['msg']);
+				if(preg_match('#^c\d{4,}-\d+$#', $retour)) { # Le commentaire a été publié
 					$_SESSION['msgcom'] = L_COM_PUBLISHED;
+					$url .= "#$retour";
 				} elseif($retour == 'mod') { # Le commentaire est en modération
 					$_SESSION['msgcom'] = L_COM_IN_MODERATION;
+					$url .= '#com_message';
 				} else {
 					# Il y a une erreur. Commentaire à corriger !
-					$redirect = $url . '#form';
+					$url .=  '#form';
 					$_SESSION['msgcom'] = $retour;
-					$_SESSION['msg']['name'] = plxUtils::unSlash($_POST['name']);
-					$_SESSION['msg']['site'] = plxUtils::unSlash($_POST['site']);
-					$_SESSION['msg']['mail'] = plxUtils::unSlash($_POST['mail']);
-					$_SESSION['msg']['content'] = plxUtils::unSlash($_POST['content']);
-					$_SESSION['msg']['parent'] = plxUtils::unSlash($_POST['parent']);
+					$_SESSION['msg'] = array(
+						'name'		=> plxUtils::unSlash($_POST['name']),
+						'site'		=> plxUtils::unSlash($_POST['site']),
+						'mail'		=> plxUtils::unSlash($_POST['mail']),
+						'content'	=> plxUtils::unSlash($_POST['content']),
+						'parent'	=> plxUtils::unSlash($_POST['parent']),
+					);
 					eval($this->plxPlugins->callHook('plxMotorDemarrageCommentSessionMessage')); # Hook Plugins
 				}
-				header('Location: ' . $redirect);
+				header('Location: ' . $url);
 				exit;
 			}
 			# Récupération des commentaires
