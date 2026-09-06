@@ -188,7 +188,9 @@ class plxAdmin extends plxMotor {
 				case 'racine_themes' :
 				case 'racine_plugins' :
 					$folder = realpath(PLX_ROOT . $v);
-					if(preg_match('#^' . realpath(PLX_ROOT) . '/#', $folder) and is_dir($folder)) {
+					# Hack against Windows
+					$pattern = (DIRECTORY_SEPARATOR == '/') ? realpath(PLX_ROOT) . '/' : preg_quote(realpath(PLX_ROOT) . DIRECTORY_SEPARATOR);
+					if(preg_match('#^' . $pattern . '#', $folder) and is_dir($folder)) {
 						$global[$k] = rtrim($v, '/') . '/';
 					} else {
 						$error = true;
@@ -198,7 +200,8 @@ class plxAdmin extends plxMotor {
 					$folder = realpath(PLX_ROOT . $this->aConf['racine_themes'] . $v);
 					# Maybe we have a symbolic link
 					# if(preg_match('#^' . realpath(PLX_ROOT) . '/#', $folder) and is_dir($folder)) {
-					if(preg_match('#^' . realpath($_SERVER['DOCUMENT_ROOT']) . '/#', $folder) and is_dir($folder)) {
+					$pattern = (DIRECTORY_SEPARATOR == '/') ? realpath($_SERVER['DOCUMENT_ROOT']) . '/' : preg_quote(realpath($_SERVER['DOCUMENT_ROOT']) . DIRECTORY_SEPARATOR);
+					if(preg_match('#^' . $pattern . '#', $folder) and is_dir($folder)) {
 						$global[$k] = basename(rtrim($folder, '/'));
 					} else {
 						$error = true;
@@ -314,7 +317,7 @@ class plxAdmin extends plxMotor {
 			}
 
 			if($error) {
-				return plxMsg::ERROR(L_UNKNOWN_ERROR . ' (' . $k . '=' . $v . ')');
+				return plxMsg::ERROR(L_UNKNOWN_ERROR . ' (' . $k . '=' . htmlspecialchars($v) . ')');
 			}
 		}
 
