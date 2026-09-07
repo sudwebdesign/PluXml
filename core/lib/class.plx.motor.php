@@ -530,7 +530,7 @@ class plxMotor {
 				$this->aCats[$number]['homepage'] = isset($attributes['homepage']) ? $attributes['homepage'] : 1;
 				$this->aCats[$number]['homepage'] = in_array($this->aCats[$number]['homepage'],array('0','1')) ? $this->aCats[$number]['homepage'] : 1;
 				if($this->aCats[$number]['active'] AND $this->aCats[$number]['homepage']) $homepageCats[]=$number;
-				# Recuperation du nombre d'article de la categorie
+				# Recuperation du nombre d'articles publiés de la categorie
 				$motif = "#^\d{4}\.(?:home,|\d{3},)*$number(?:,\d{3})*\.\d{3}\.\d{12}\.[\w-]+\.xml$#";
 				$arts = $this->plxGlob_arts->query($motif,'art','',0,false,'before');
 				$this->aCats[$number]['articles'] = ($arts?sizeof($arts):0);
@@ -1301,21 +1301,23 @@ class plxMotor {
 	 * @author	Stephane F
 	 **/
 	public function nbArticles($select='all', $userId='\d{3}', $mod='_?', $publi='all') {
-
-		$nb = 0;
 		if($select == 'all')
-			$motif = '[home|draft|0-9,]*';
+			$motif = '([home|draft|0-9,]*)';
 		elseif($select=='published')
-			$motif = '[home|0-9,]*';
+			$motif = '([home|0-9,]*)';
 		elseif($select=='draft')
-			$motif = '[\w,]*[draft][\w,]*';
-		else
-			$motif = $select;
+			$motif = '([\w,]*[draft][\w,]*)';
+		elseif($select == 'home' or preg_match('#^\d{3}$#', $select)) {
+			$motif = '(?:home,|draft,|\d{3},)*' . $select . '(?:,home|,draft|,\d{3})*';
+		} else {
+			$motif = '(' . $select . ')';
+		}
 
-		if($arts = $this->plxGlob_arts->query('#^'.$mod.'\d{4}.('.$motif.').'.$userId.'.\d{12}.[\w-]+.xml$#', 'art', '', 0, false, $publi))
-			$nb = sizeof($arts);
+		if($arts = $this->plxGlob_arts->query('#^'.$mod.'\d{4}\.'.$motif.'\.'.$userId.'\.\d{12}\.[\w-]+\.xml$#', 'art', '', 0, false, $publi)) {
+			return sizeof($arts);
+		}
 
-		return $nb;
+		return 0;
 	}
 
 	/**
