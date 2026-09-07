@@ -1755,9 +1755,11 @@ RewriteRule ^feed\/(.*)$ feed.php?$1 [L]
 
 		# Création du nouveau commentaire
 		if($this->addCommentaire($comment)) {
-			# Suppression de l'ancien commentaire
-			unlink($fullpath);
-			$id = $newid;
+			if($id != $newid) {
+				# Suppression de l'ancien commentaire
+				unlink($fullpath);
+				$id = $newid;
+			}
 			return plxMsg::Info(L_COMMENT_SAVE_SUCCESSFUL);
 		}
 

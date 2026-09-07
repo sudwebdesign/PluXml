@@ -54,9 +54,6 @@ if(!empty($_GET['a'])) {
 	}
 	# Infos sur l'article
 	$aArt = $plxAdmin->parseArticle(PLX_ROOT.$plxAdmin->aConf['racine_articles'].$globArt['0']);
-	$portee = L_COMMENTS_ARTICLE_SCOPE.' &laquo;'.$aArt['title'].'&raquo;';
-} else { # Commentaires globaux
-	$portee = '';
 }
 
 # On inclut le header
@@ -69,8 +66,7 @@ if(in_array($_GET['sel'], array('online', 'offline', 'all')))
 else
 	$comSel = ((isset($_SESSION['selCom']) AND !empty($_SESSION['selCom'])) ? $_SESSION['selCom'] : 'all');
 
-if(!empty($_GET['a'])) {
-
+if(!empty($_GET['a']) and preg_match('#^_?(\d{4})$#', $_GET['a'], $matches)) {
 	switch ($comSel) {
 		case 'online':
 			$mod = '';
@@ -79,11 +75,12 @@ if(!empty($_GET['a'])) {
 			$mod = '_';
 			break;
 		default:
-			$mod = '[[:punct:]]?';
+			$mod = '_?';
 	}
-	$comSelMotif = '/^'.$mod.str_replace('_','',$_GET['a']).'.(.*).xml$/';
+	$artId = $matches[1];
+	$comSelMotif = '/^' . $mod . $artId . '\..*\.xml$/';
 	$_SESSION['selCom'] = 'all';
-	$nbComPagination=$plxAdmin->nbComments($comSelMotif);
+	$nbComPagination=$plxAdmin->nbComments($comSelMotif, 'all', $artId);
 	$h2 = '<h2>'.L_COMMENTS_ALL_LIST.'</h2>';
 }
 elseif($comSel=='online') {
@@ -105,18 +102,6 @@ elseif($comSel=='all') { // all
 	$h2 = '<h2>'.L_COMMENTS_ALL_LIST.'</h2>';
 }
 
-if($portee!='') {
-	$h3 = '<h3>'.$portee.'</h3>';
-}
-
-$breadcrumbs = array();
-$breadcrumbs[] = '<li><a '.($_SESSION['selCom']=='all'?'class="selected" ':'').'href="comments.php?sel=all&amp;page=1">'.L_ALL.'</a>&nbsp;('.$plxAdmin->nbComments('all').')</li>';
-$breadcrumbs[] = '<li><a '.($_SESSION['selCom']=='online'?'class="selected" ':'').'href="comments.php?sel=online&amp;page=1">'.L_COMMENT_ONLINE.'</a>&nbsp;('.$plxAdmin->nbComments('online').')</li>';
-$breadcrumbs[] = '<li><a '.($_SESSION['selCom']=='offline'?'class="selected" ':'').'href="comments.php?sel=offline&amp;page=1">'.L_COMMENT_OFFLINE.'</a>&nbsp;('.$plxAdmin->nbComments('offline').')</li>';
-if(!empty($_GET['a'])) {
-	$breadcrumbs[] = '<a href="comment_new.php?a='.$_GET['a'].'" title="'.L_COMMENT_NEW_COMMENT_TITLE.'">'.L_COMMENT_NEW_COMMENT.'</a>';
-}
-
 function selector($comSel, $id) {
 	ob_start();
 	if($comSel=='online')
@@ -130,24 +115,44 @@ function selector($comSel, $id) {
 
 $selector=selector($comSel, 'id_selection');
 
+eval($plxAdmin->plxPlugins->callHook('AdminCommentsTop'));
+
 ?>
-
-<?php eval($plxAdmin->plxPlugins->callHook('AdminCommentsTop')) # Hook Plugins ?>
-
 <form action="comments.php<?php echo !empty($_GET['a'])?'?a='.$_GET['a']:'' ?>" method="post" id="form_comments">
 
 	<div class="inline-form action-bar">
 		<?php echo $h2 ?>
 		<ul class="menu">
-			<?php echo implode($breadcrumbs); ?>
+<?php
+foreach(array(
+	'all'		=> L_ALL,
+	'online'	=> L_COMMENT_ONLINE,
+	'offline'	=> L_COMMENT_OFFLINE,
+) as $k=>$caption) {
+	$selected = ($_SESSION['selCom'] == $k) ? 'class="selected"' : '';
+?>
+			<li><a <?= $selected ?> href="comments.php?sel=<?= $k ?>&page=1"><?= $caption ?></a>&nbsp;(<?= $plxAdmin->nbComments($k, 'all', !empty($artId) ? $artId : '\d{4}') ?>)</li>
+<?php
+}
+
+if(!empty($aArt)) {
+?>
+			<li><a href="comment_new.php?a=<?= $aArt['numero'] ?>" title="<?= L_COMMENT_NEW_COMMENT_TITLE ?>"><?= L_COMMENT_NEW_COMMENT ?></a></li>
+<?php
+}
+?>
 		</ul>
-		<?php echo $selector ?>
-		<?php echo plxToken::getTokenPostMethod() ?>
+		<?= $selector ?>
+		<?= plxToken::getTokenPostMethod() ?>
 		<input type="submit" name="btn_ok" value="<?php echo L_OK ?>" onclick="return confirmAction(this.form, 'id_selection', 'delete', 'idCom[]', '<?php echo L_CONFIRM_DELETE ?>')" />
 	</div>
-
-	<?php if(isset($h3)) echo $h3 ?>
-
+<?php
+if(!empty($aArt)) {
+?>
+	<h3><?= L_COMMENTS_ARTICLE_SCOPE ?> &laquo;<a href="article.php?a=<?= $aArt['numero'] ?>" target="plxArt"><?= $aArt['title'] ?></a>&raquo;</h3>
+<?php
+}
+?>
 	<div class="scrollable-table">
 		<table id="comments-table" class="full-width">
 			<thead>
@@ -218,7 +223,13 @@ $selector=selector($comSel, 'id_selection');
 					<td class="action">
 						<a href="comment_new.php?<?= $query ?>" title="<?= L_COMMENT_ANSWER ?>"><?= L_COMMENT_ANSWER ?></a>
 						<a href="comment.php?<?= $query ?>" title="<?= L_COMMENT_EDIT_TITLE ?>"><?= L_COMMENT_EDIT ?></a>
+<?php
+if(empty($aArt)) {
+?>
 						<a href="article.php?a=<?= $artId ?>" title="<?= L_COMMENT_ARTICLE_LINKED_TITLE ?>"><?= L_COMMENT_ARTICLE_LINKED ?></a>
+<?php
+}
+?>
 					</td>
 				</tr>
 <?php
@@ -289,6 +300,6 @@ $selector=selector($comSel, 'id_selection');
 <?php
 # Hook Plugins
 eval($plxAdmin->plxPlugins->callHook('AdminCommentsFoot'));
+
 # On inclut le footer
 include 'foot.php';
-?>

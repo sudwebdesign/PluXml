@@ -1329,22 +1329,19 @@ class plxMotor {
 	 * @scope	global
 	 * @author	Stephane F
 	 **/
-	public function nbComments($select='online', $publi='all') {
+	public function nbComments($select='online', $publi='all', $artId='\d{4}') {
+		switch($select) {
+			case 'all'		: $motif = '#^_?' . $artId . '\.(.*)\.xml$#'; break;
+			case 'offline'	: $motif = '#^_' . $artId . '\.(.*)\.xml$#'; break;
+			case 'online'	: $motif = '#^' . $artId . '\.(.*)\.xml$#'; break;
+			default			: $motif = $select;
+		}
 
-		$nb = 0;
-		if($select == 'all')
-			$motif = '#[^[:punct:]?]\d{4}.(.*).xml$#';
-		elseif($select=='offline')
-			$motif = '#^_\d{4}.(.*).xml$#';
-		elseif($select=='online')
-			$motif = '#^\d{4}.(.*).xml$#';
-		else
-			$motif = $select;
+		if($coms = $this->plxGlob_coms->query($motif, 'com', '', 0, false, $publi)) {
+			return sizeof($coms);
+		}
 
-		if($coms = $this->plxGlob_coms->query($motif,'com','',0,false,$publi))
-			$nb = sizeof($coms);
-
-		return $nb;
+		return 0;
 	}
 
 	/**
