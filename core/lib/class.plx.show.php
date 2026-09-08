@@ -1825,7 +1825,7 @@ class plxShow
 <span class="p_prev"><a href="<?= $p_url ?>" title="<?= L_PAGINATION_PREVIOUS_TITLE ?>"><?= L_PAGINATION_PREVIOUS ?></a></span>&nbsp;
 <?php
             # Affichage de la page courante
-            printf('<span class="p_page p_current">' . L_PAGINATION . '</span>', $this->plxMotor->page, $last_page);
+            printf('<span class="p_page p_current">' . L_PAGINATION . '</span>&nbsp;', $this->plxMotor->page, $last_page);
 
             if ($this->plxMotor->page < $last_page) # Si la page active < derniere page on affiche un lien page suivante
 ?>

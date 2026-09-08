@@ -32,6 +32,11 @@ body {
 	color: #3A4145;
 	background-color: #fff;
 }
+
+a {
+	color: #2549d6;
+}
+
 /* ---------- Header ---------- */
 
 .heading-small {
@@ -158,9 +163,10 @@ ul.menu a.noactive{
 
 }
 
-.cat-list .active,
-.classified-in .active {
-	background-color: #6aa6ce;
+.classified-in .active,
+.tags .active {
+	padding: 0 .5rem;
+	background-color: #577f99;
 	color: #fff;
 }
 
@@ -264,11 +270,6 @@ article:after {
 }
 
 .article .written-by:after {
-	content: '|';
-	padding-left: 0;
-}
-
-.article .classified-in:after {
 	content: '|';
 	padding-left: 0;
 }
@@ -398,9 +399,10 @@ article:after {
 }
 
 .aside h3 {
+	display: inline-block;
+	margin: 0;
 	font-size: 1.5rem;
 	font-weight: bold;
-	margin-top: 5rem;
 	text-transform: uppercase;
 }
 
@@ -408,7 +410,52 @@ article:after {
 	margin: 0;
 }
 
+details::details-content {
+	background-color: #f8f8f8;
+	border-radius: 1rem;
+}
 
+details[open]::details-content {
+	animation: animateDown 0.5s linear forwards;
+}
+
+@keyframes animateDown {
+  0% {
+    opacity: 0;
+    transform: translatey(-15px);
+  }
+  100% {
+    opacity: 1;
+    transform: translatey(0);
+  }
+}
+
+.aside summary {
+	display: list-item;
+}
+
+.aside summary::marker {
+	color: #d8876f;
+}
+
+.aside details ul:not(.tag-list) {
+	margin-left: 2rem;
+}
+
+.aside details .tag-list {
+	text-align: center;
+}
+
+.aside .cat-list,
+.aside .arch-list {
+	margin-right: 2rem;
+}
+
+.aside .cat-list li,
+.aside .arch-list li {
+	display: flex;
+	justify-content: space-between;
+}
 /* --------- tags ---------- */
 
 .aside ul.tag-list {
@@ -424,7 +471,7 @@ article:after {
 	padding: 0 0.5rem 0 0;
 }
 
-.aside ul.tag-list li a.active {
+.aside .active {
 	font-weight: bold;
 	background-color: #68838b;
 	color: #fff;

@@ -1,4 +1,11 @@
-<?php if (!defined('PLX_ROOT')) exit; ?>
+<?php
+if(!class_exists('plxShow')) {
+	exit('plxShow class is missing', 500);
+}
+
+$colsClass = 'col sml-12';
+if(!defined('FULL_WIDTH')) { $colsClass .= ' med-9'; }
+?>
 <!DOCTYPE html>
 <html lang="<?php $plxShow->defaultLang() ?>">
 <head>
