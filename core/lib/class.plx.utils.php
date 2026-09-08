@@ -161,7 +161,7 @@ class plxUtils {
 			return true; # url interne commençant par ?
 		}
 
-		$url = filter_var($site, FILTER_VALIDATE_URL, array('options' => array('default' => '')));
+		$url = filter_var($site, FILTER_VALIDATE_URL);
 		if($url === false) {
 			if($reset) {
 				$site = '';
