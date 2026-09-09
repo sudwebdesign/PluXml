@@ -711,10 +711,14 @@ class plxShow
      * @scope    home,categorie,article,tags,archives
      * @author    Stephane F.
      **/
-    public function artDate($format = '#day #num_day #month #num_year(4)')
+    public function artDate($format = '#day #num_day #month #num_year(4)', $echo=true)
     {
+        $resp = plxDate::formatDate($this->plxMotor->plxRecord_arts->f('date'), $format);
+        if(!$echo) {
+            return $resp;
+        }
 
-        echo plxDate::formatDate($this->plxMotor->plxRecord_arts->f('date'), $format);
+        echo $resp;
     }
 
     /**
@@ -2116,14 +2120,19 @@ class plxShow
             krsort($cumuls_ans);
 
             # Affichage pour la période en cours
-            $page_actuelle = ($this->plxMotor->mode == "archives") ? $this->plxMotor->cible : '';
+            switch($this->plxMotor->mode) {
+                case 'archives' : $page_actuelle = $this->plxMotor->cible; break;
+                case 'article' : $page_actuelle = $this->artDate('#num_year(4)#num_month', false); break;
+                default : $page_actuelle = '';
+            }
+
             # mb_internal_encoding('utf-8');
             $id = 0;
             foreach ($cumuls_mois as $m => $nbarts) {
                 $id++;
                 $mois = str_pad(($m % 12) + 1, 2, '0', STR_PAD_LEFT);
                 $annee = intval($m / 12);
-                $active = $page_actuelle == '' . $annee . $mois;
+                $active = ($page_actuelle == $annee . $mois);
                 $nom_mois = plxDate::getCalendar('month', $mois);
                 echo strtr($format, array(
                     '#archives_id' => 'arch-month-' . str_pad($id, 2, '0', STR_PAD_LEFT),
@@ -2139,9 +2148,12 @@ class plxShow
 
             # Affichage annuel
             $id = 0;
+            if($this->plxMotor->mode == 'article') {
+				$page_actuelle = substr($page_actuelle, 0 ,4);
+			}
             foreach ($cumuls_ans as $annee => $nbarts) {
                 $id++;
-                $active = $page_actuelle == '' . $annee;
+                $active = ($page_actuelle == $annee);
                 echo strtr($format, array(
                     '#archives_id' => 'arch-year-' . str_pad($id, 2, '0', STR_PAD_LEFT),
                     '#archives_name' => L_YEAR . ' ' . $annee,
@@ -2150,7 +2162,7 @@ class plxShow
                     '#archives_url' => $this->plxMotor->urlRewrite('?archives/' . $annee),
                     '#archives_nbart' => $nbarts,
                     '#archives_status' => ($active) ? 'active' : '',
-                    '#archives_selected' => ($active) ? 'selected' : ''
+                    '#archives_selected' => ($active) ? 'selected' : '',
                 ));
             }
 
@@ -2160,6 +2172,9 @@ class plxShow
                 if ($this->plxMotor->aConf['homestatic'] != '' and isset($this->plxMotor->aStats[$this->plxMotor->aConf['homestatic']])) {
                     $url = ($this->plxMotor->aStats[$this->plxMotor->aConf['homestatic']]['active']) ? '?blog' : '';
                 }
+?>
+	<hr />
+<?php
                 echo strtr($format, array(
                     '#archives_id' => 'arch-total',
                     '#archives_name' => L_TOTAL . ' ',
@@ -2167,8 +2182,8 @@ class plxShow
                     '#archives_month' => L_TOTAL,
                     '#archives_url' => $this->plxMotor->urlRewrite($url),
                     '#archives_nbart' => $total,
-                    '#archives_status' => ($active) ? 'active' : '',
-                    '#archives_selected' => ($active) ? 'selected' : ''
+                    '#archives_status' => '',
+                    '#archives_selected' => '',
                 ));
             }
         }
