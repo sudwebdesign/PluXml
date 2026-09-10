@@ -2,18 +2,27 @@
 const PLX_ROOT = '../';
 const PLX_CORE = PLX_ROOT .'core/';
 
+# FILES=$(grep -l 'const PLX_CORE' *.php install/*.php update/*.php core/admin/prepend.php)
+$plx_core_files =array(
+	'core/admin/prepend.php', # Ne pas déplacer dans le tableau. Peut-être modifié à l'installation
+	'index.php',
+	'feed.php',
+	'news.php',
+	'sitemap.php',
+	'install/index.php',
+	'update/index.php',
+	'themes/defaut/css/minify.php',
+);
+const TARGET = PLX_ROOT . '../'; # Nouvel emplacement pour les librairies
+
 include PLX_CORE.'lib/config.php';
 
 # On démarre la session
-# session_set_cookie_params(0, "/", $_SERVER['SERVER_NAME'], isset($_SERVER["HTTPS"]), true);
-# session_start();
 $session_site['name'] = 'PLX_INSTALL';
 session_start($session_site);
 
 # On inclut les librairies nécessaires
 include PLX_CORE.'lib/class.plx.timezones.php';
-include PLX_CORE.'lib/class.plx.date.php';
-include PLX_CORE.'lib/class.plx.glob.php';
 include PLX_CORE.'lib/class.plx.utils.php';
 include PLX_CORE.'lib/class.plx.token.php';
 
@@ -135,6 +144,31 @@ $filename = PLX_ROOT . PLX_CONFIG_PATH . 'index.html';
 if(!file_exists($filename)) {
 	touch($filename);
 }
+
+# On vérifie que le dossier ""core/admin" existe. sinon on recherche un dossier contenant le fichier auth.php
+$admin_path = 'core/admin/';
+if(!file_exists(PLX_ROOT . $admin_path)) {
+	$auths = glob(PLX_ROOT . '*/*/auth.php');
+
+	if(!empty($auths)) {
+		$admin_path = preg_replace('#.*/([^\/]+/\w[\w-]+/)auth\.php$#', '$1', $auths[0]) . '/';
+	}
+}
+
+# On vérifie que
+# le dossier lib n'a pas été déplacé
+# et PluXml est installé à la racine du serveur HTTP
+# et droit en écriture sous PLX_ROOT
+$plxRoot = realpath(PLX_ROOT);
+if(DIRECTORY_SEPARATOR != '/') {
+	# Hack against Window$
+	$plxRoot = str_replace('\\', '/', $plxRoot);
+}
+$move_lib_enabled = (
+	is_dir(PLX_CORE . 'lib') and
+	$plxRoot == $_SERVER['DOCUMENT_ROOT'] and
+	is_writable(PLX_ROOT . '../')
+);
 
 function install_datas($content, $config) {
 
@@ -299,20 +333,62 @@ function install_datas($content, $config) {
 	}
 }
 
+function moveLibFolder($enabled, $files_update) {
+	if(!$enabled) {
+		return false;
+	}
+
+	# on recense les dossiers ou fichiers dans le dossier core à déplacer
+	$excludes = array(
+		'index.html',
+		basename($files_update[0]),
+	);
+	$aFilenames = array_filter(
+		glob(PLX_CORE . '*'),
+		function($value) use($excludes) {
+			return !in_array(basename($value), $excludes);
+		}
+	);
+
+	# On vérifie qu'on ne va écraser aucun fichier ou dossier
+	foreach($aFilenames as $f) {
+		if(file_exists(TARGET . $f)) {
+			return false;
+		}
+	}
+
+	# Update PLX_CORE for each file
+	foreach($files_update as $f) {
+		$filename = PLX_ROOT .$f;
+		file_put_contents($filename, preg_replace('#PLX_ROOT\s*\.\s*\'core/\'#', 'PLX_ROOT . \'../\'', file_get_contents($filename)));
+	}
+
+	# Move every file or folder under $_SERVER['DOCUMENT_ROOT'] as needed
+	foreach($aFilenames as $f) {
+		rename($f, TARGET . basename($f));
+	}
+
+	return true;
+}
+
 if(!empty($_POST['install'])) {
 	$msg = plxUtils::checkProfil($_POST);
 	if($msg === true) {
-		if(preg_match('#^\w[\w-]+/?$#', $_POST['data_folder']) and rtrim($_POST['data_folder'], '/') . '/' != $data_folder) {
+		$filename = PLX_CORE.'lib/plx_config.php';
+		if(
+			preg_match('#^\w[\w-]+/?$#', $_POST['data_folder']) and
+			rtrim($_POST['data_folder'], '/') . '/' != $data_folder and
+			is_writable($filename)
+		) {
 			# Renommage du dossier des données (data)
 			$target = rtrim($_POST['data_folder'], '/');
 			if(rename(PLX_ROOT. rtrim($data_folder, '/'), PLX_ROOT . $target)) {
-				# Mise à jour de config.php
+				# Mise à jour de plx_config.php
 				$target .= '/';
 				$plx_config_path = $target . 'configuration/';
 				$content =
 					'<?php' . PHP_EOL .
 					'const PLX_CONFIG_PATH = \'' . $plx_config_path . '\';' . PHP_EOL;
-				$filename = PLX_CORE.'lib/plx_config.php';
 				file_put_contents($filename, $content);
 				opcache_invalidate($filename);
 
@@ -332,6 +408,23 @@ if(!empty($_POST['install'])) {
 		}
 
 		install_datas($_POST, $config);
+
+		# Chemin d'accès côté admin
+		if(
+			preg_match('#^(([\w-]+)/([\w-]+))/?$#', $_POST['admin_path'], $matches) and
+			!file_exists(PLX_ROOT . $matches[1]) and
+			(is_dir(PLX_ROOT . $matches[2]) or mkdir(PLX_ROOT . $matches[2]))
+		) {
+			rename(PLX_ROOT . 'core/admin', PLX_ROOT . $matches[1]);
+			# Pour mettre à jour la valeur de PLX_CORE si le dossier lib est déplacé sous $_SERVER['DOCUMENT_ROOT']
+			$plx_core_files[0] = $matches[1] . '/prepend.php';
+		}
+
+		if(!empty($_POST['move_lib']) and $_POST['move_lib'] == '1') {
+			# On déplace le dossier lib sous $_SERVER['DOCUMENT_ROOT'] et on actualise la valeur de PLX_CORE
+			moveLibFolder($move_lib_enabled, $plx_core_files);
+		}
+
 		header('Location: ' . get_root_url());
 		exit;
 	}
@@ -350,14 +443,6 @@ if(!empty($_POST['install'])) {
 }
 plxUtils::cleanHeaders();
 
-$admin = 'core/admin/';
-if(!file_exists(PLX_ROOT . $admin)) {
-	$auths = glob(PLX_ROOT . '*/*/auth.php');
-
-	if(!empty($auths)) {
-		$admin = preg_replace('#.*/([^\/]+/\w[\w-]+/)auth\.php$#', '$1', $auths[0]);
-	}
-}
 ?>
 <!DOCTYPE html>
 <html lang="<?= $lang ?>">
@@ -408,7 +493,7 @@ if(!empty($msg)) {
 					</div>
 					<div class="grid">
 						<div class="col sml-12 med-5 label-centered">
-							<label for="id_default_lang"><?= L_INSTALL_DATA ?>&nbsp;:</label>
+							<label for="id_data"><?= L_INSTALL_DATA ?>&nbsp;:</label>
 						</div>
 						<div class="col sml-12 med-7">
 							<?php plxUtils::printSelect('data', array('1' => L_YES, '0' => L_NO), $data) ?>&nbsp;
@@ -416,7 +501,7 @@ if(!empty($msg)) {
 					</div>
 					<div class="grid">
 						<div class="col sml-12 med-5 label-centered">
-							<label for="id_name"><?= L_USERNAME ?>&nbsp;:</label>
+							<label for="id_fullname"><?= L_USERNAME ?>&nbsp;:</label>
 						</div>
 						<div class="col sml-12 med-7">
 							<?php plxUtils::printInput('fullname', $name, 'text', '20-64',false, '', '', 'autofocus', true); ?>
@@ -455,14 +540,46 @@ if(!empty($msg)) {
 							<?php plxUtils::printInput('email', $email, 'email', '20-64', false, '', '', '', true); ?>
 						</div>
 					</div>
+<?php
+if(is_writable(PLX_CORE.'lib/plx_config.php')) {
+?>
 					<div class="grid">
 						<div class="col sml-12 med-5 label-centered">
-							<label for="id_name"><?= L_DATA_FOLDER ?>&nbsp;:</label>
+							<label for="id_data_folder"><?= L_DATA_FOLDER ?>&nbsp;:</label>
 						</div>
 						<div class="col sml-12 med-7">
 							<?php plxUtils::printInput('data_folder', $data_folder, 'text', '20-64',false, '', '', '', true); ?>
 						</div>
 					</div>
+<?php
+}
+
+if(is_writable(PLX_ROOT)) {
+?>
+					<div class="grid">
+						<div class="col sml-12 med-5 label-centered">
+							<label for="id_admin_path"><?= L_ADMIN_PATH ?>&nbsp;:</label>
+						</div>
+						<div class="col sml-12 med-7">
+							<?php plxUtils::printInput('admin_path', $admin_path, 'text', '20-64',false, '', '', '', true); ?>
+						</div>
+					</div>
+<?php
+}
+
+if($move_lib_enabled) {
+?>
+					<div class="grid">
+						<div class="col sml-12 med-5 label-centered">
+							<label for="id_move_lib"><?= L_MOVE_LIB ?>&nbsp;:</label>
+						</div>
+						<div class="col sml-12 med-7">
+							<?php plxUtils::printSelect('move_lib', array('1' => L_YES, '0' => L_NO), '0') ?>&nbsp;
+						</div>
+					</div>
+<?php
+}
+?>
 					<div class="grid">
 						<div class="col sml-12 med-5 label-centered">
 							<label for="id_timezone"><?= L_TIMEZONE ?>&nbsp;:</label>
@@ -478,18 +595,24 @@ if(!empty($msg)) {
 					<ul class="unstyled-list">
 						<li><strong><?= L_PLUXML_VERSION; ?> <?= PLX_VERSION ?> (<?= L_INFO_CHARSET ?> <?= PLX_CHARSET ?>)</strong></li>
 						<li><?= L_INFO_PHP_VERSION.' : '.phpversion() ?></li>
-						<?php if (!empty($_SERVER['SERVER_SOFTWARE'])) { ?>
+<?php if (!empty($_SERVER['SERVER_SOFTWARE'])) { ?>
 						<li><?= $_SERVER['SERVER_SOFTWARE']; ?></li>
-						<?php } ?>
+<?php } ?>
+						<li><?= php_uname() ?></li>
+					</ul>
+					<hr />
+					<ul class="unstyled-list">
 						<?php plxUtils::testWrite(PLX_ROOT) ?>
 						<?php plxUtils::testWrite(PLX_ROOT.PLX_CONFIG_PATH) ?>
 						<?php plxUtils::testWrite(PLX_ROOT.PLX_CONFIG_PATH.'plugins/') ?>
+						<?php plxUtils::testWrite(PLX_CORE.'lib/plx_config.php') ?>
 						<?php plxUtils::testWrite(PLX_ROOT.$config['racine_articles']) ?>
 						<?php plxUtils::testWrite(PLX_ROOT.$config['racine_commentaires']) ?>
 						<?php plxUtils::testWrite(PLX_ROOT.$config['racine_statiques']) ?>
 						<?php plxUtils::testWrite(PLX_ROOT.$config['medias']) ?>
 						<?php plxUtils::testWrite(PLX_ROOT.$config['racine_plugins']) ?>
 						<?php plxUtils::testWrite(PLX_ROOT.$config['racine_themes']) ?>
+						<?php plxUtils::testWrite(PLX_ROOT.'../') ?>
 						<?php plxUtils::testModReWrite() ?>
 						<?php plxUtils::testLibGD() ?>
 						<?php plxUtils::testLibXml() ?>
@@ -503,8 +626,6 @@ if(!empty($msg)) {
 		</section>
 
 	</main>
-	<script src="<?= PLX_ROOT . $admin; ?>js/visual.js"></script>
+	<script src="<?= PLX_ROOT . $admin_path; ?>js/visual.js"></script>
 </body>
-
 </html>
-
