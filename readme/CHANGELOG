@@ -1,3 +1,23 @@
+## PluXml 5.10.0-rc4(2026/09/11)
+[+] Refacto for installation
+[+] Refacto plxShow::archList() when $plxShow->mode()==article
+[+] Refacto defaut theme
+[+] Refacto statiques.php
+FIX PlxUtils::checkSite()
+[+] Refacto comments.php and plxMotor::nbComments()
+[+] Refacto core/admin/index.php
+[+] Display php_uname() or PHP_OS in parametres_infos.php
+FIX PlxMotor::demarrage() for new comment
+FIX Minor fix for 1st comment in installation
+FIX Hack against Windows in plxCapcha::createImage()
+[+] Refacto parametres_plugins.php
+[+] Refacto plxMotor::addCommentaire()
+FIX Hack for users of Windows in plxAdmin::editConfiguration()
+[+] Refacto article.php
+[+] Don't rename plugin when error occurs if PLX_DEBUG
+Fix plxMotor::parseArticle()
+Fix plxAdmin::checkProfil()
+
 ## PluXml 5.10.0-rc3(2026/08/26)
 [+] Update CHANGELOG
 [+] Enhance popup for image in defaut theme
