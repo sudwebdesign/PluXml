@@ -97,7 +97,7 @@ switch ($_SESSION['sel_get']) {
 	default: // 'all'
 		$catIdSel = '.*FILTER.*';
 }
-$catIdSel = str_replace('FILTER', ($_SESSION['sel_cat'] == 'all') ? '': $_SESSION['sel_cat'], $catIdSel);// *** fix data/articles/0002.home.001.202610101821.nouvel-article.xml (juste en home)
+$catIdSel = str_replace('FILTER', ($_SESSION['sel_cat'] == 'all') ? '': $_SESSION['sel_cat'], $catIdSel);
 
 # Récupération du texte à rechercher
 if(!empty($_GET['artTitle'])) {
